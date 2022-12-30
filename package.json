@@ -1,0 +1,40 @@
+{
+  "name": "tesis-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js",
+    "migrate": "sequelize db:migrate && sequelize db:seed:all",
+    "migrate:undo": "sequelize db:migrate:undo:all && sequelize db:seed:undo:all"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mjp0997/tesis-api.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mjp0997/tesis-api/issues"
+  },
+  "homepage": "https://github.com/mjp0997/tesis-api#readme",
+  "dependencies": {
+    "bcryptjs": "2.4.3",
+    "cors": "2.8.5",
+    "dotenv": "16.0.3",
+    "express": "4.18.2",
+    "express-validator": "6.14.2",
+    "jsonwebtoken": "8.5.1",
+    "mariadb": "3.0.2",
+    "mysql2": "2.3.3",
+    "sequelize": "6.26.0",
+    "sequelize-cli": "6.5.2",
+    "socket.io": "4.5.4",
+    "uuid": "9.0.0",
+    "validator": "13.7.0"
+  },
+  "devDependencies": {
+    "nodemon": "2.0.20"
+  }
+}
