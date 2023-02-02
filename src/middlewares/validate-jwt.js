@@ -30,7 +30,7 @@ const validateJWT = async (req = request, res = response, next) => {
 
    try {
       // Verificando el token y obteniendo el id del token
-      const { email, id } = jwt.verify(token, process.env.SECRETORPRIVATEKEY);
+      const { uuid, id } = jwt.verify(token, process.env.SECRETORPRIVATEKEY);
       
       const authUser = await User.findByPk(id, {
          include: [
@@ -71,7 +71,7 @@ const validateJWT = async (req = request, res = response, next) => {
          });
       }
 
-      if (authUser.email != email) {
+      if (authUser.uuid != uuid) {
          return res.status(401).json({
             errors: [
                {

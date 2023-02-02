@@ -331,7 +331,7 @@ const login = async (req = request, res = response) => {
       }
 
       // Generar JWT
-      const token = await generateJWT(user.id, user.email);
+      const token = await generateJWT(user.id, user.uuid);
 
       res.json({
          user: formatUser(user),
@@ -353,7 +353,7 @@ const renew = async (req = request, res = response) => {
    const user = req.authUser;
 
    // Generar JWT
-   const token = await generateJWT(user.id, user.email);
+   const token = await generateJWT(user.id, user.uuid);
 
    res.json({
       user,
