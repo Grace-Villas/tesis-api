@@ -16,8 +16,8 @@ const { formatUser } = require('../helpers/users');
  * Crear un nuevo usuario. Perteneciente a una compañía cliente
  * @param {string} name string. `body`.
  * @param {string} email string, email. `body`.
- * @param {string} password string. `body`
- * @param {integer} companyId integer. `body`
+ * @param {string} password string. `body`.
+ * @param {integer} companyId integer. `body`.
  */
 const create = async (req = request, res = response) => {
    try {
@@ -156,13 +156,11 @@ const findByIdAndDelete = async (req = request, res = response) => {
 
 /**
  * Actualizar información de un usuario dado su id.
- * @param {integer} id integer. `params`
- * @param {string} name string. `body`. Opcional
- * @param {string} rut string. `body`. Opcional
- * @param {integer} city integer. `body`. Opcional
- * @param {string} address string. `body`. Opcional
- * @param {string} phone string, sin el código de país. `body`. Opcional
- * @param {string} email string, email. `body`. Opcional
+ * @param {integer} id integer. `params`.
+ * @param {string} name string. `body`. Opcional.
+ * @param {string} email string, email. `body`. Opcional.
+ * @param {string} password string. `body`. Opcional.
+ * @param {integer} companyId integer. `body`. Opcional.
  */
 const findByIdAndUpdate = async (req = request, res = response) => {
    try {
@@ -361,6 +359,37 @@ const renew = async (req = request, res = response) => {
    });
 }
 
+/**
+ * Actualizar información de un usuario dado su jwt (JsonWebToken).
+ * @param {integer} x-token integer. `headers`.
+ * @param {string} name string. `body`. Opcional.
+ * @param {string} email string, email. `body`. Opcional.
+ */
+const findByJWTAndUpdate = async (req = request, res = response) => {
+   try {
+      const { name, stringEmail } = req.body;
+
+      const authUser = req.authUser;
+
+      const user = await User.findByPk(authUser.id);
+
+      if (name) {
+         user.name = name.toLocaleLowerCase();
+      }
+
+      if (stringEmail) {
+         user.email = stringEmail;
+      }
+
+      await user.save();
+
+      res.json(user);
+   } catch (error) {
+      console.log(error);
+      res.status(500).json(error);
+   }
+}
+
 
 
 // Exports
@@ -371,6 +400,8 @@ module.exports = {
    findByIdAndDelete,
    findByIdAndRestore,
    findByIdAndUpdate,
+   // Auth y area personal
    login,
    renew,
+   findByJWTAndUpdate
 }

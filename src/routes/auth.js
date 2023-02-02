@@ -3,10 +3,12 @@ const { body } = require('express-validator');
 
 const { validateFields } = require('../middlewares/validate-fields');
 const { validateJWT } = require('../middlewares/validate-jwt');
+const { validateUniqueEmail } = require('../middlewares/custom-express');
 
 const {
    login,
    renew,
+   findByJWTAndUpdate,
 } = require('../controllers/users');
 
 
@@ -31,6 +33,19 @@ router.post('/login', [
 router.get('/renew', [
    validateJWT
 ], renew);
+
+router.put('/', [
+   validateJWT,
+
+   body('name').optional()
+      .isAlpha('es-ES', { ignore: ' '}).withMessage('El nombre debe contener solo letras'),
+
+   body('email').optional()
+      .isEmail().withMessage('El email es inválido').bail()
+      .custom((name, { req }) => validateUniqueEmail(name, { modelName: 'User', req, isUpdate: true })),
+   
+   validateFields
+], findByJWTAndUpdate);
 
 
 
