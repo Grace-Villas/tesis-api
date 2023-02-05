@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const { body } = require('express-validator');
+const { body, param } = require('express-validator');
 
 const { validateFields } = require('../middlewares/validate-fields');
 const { validateJWT } = require('../middlewares/validate-jwt');
@@ -9,6 +9,7 @@ const {
    login,
    renew,
    findByJWTAndUpdate,
+   findByJWTAndUpdatePassword,
 } = require('../controllers/users');
 
 
@@ -34,8 +35,26 @@ router.get('/renew', [
    validateJWT
 ], renew);
 
-router.put('/', [
+router.put('/password', [
    validateJWT,
+
+   body('oldPassword')
+      .not().isEmpty().withMessage('La contraseña actual es obligatoria').bail()
+      .isLength({ min: 8 }).withMessage('La contraseña debe contener mínimo 8 caracteres'),
+
+   body('newPassword')
+      .not().isEmpty().withMessage('La nueva contraseña es obligatoria').bail()
+      .isLength({ min: 8 }).withMessage('La contraseña debe contener mínimo 8 caracteres'),
+   
+   validateFields
+], findByJWTAndUpdatePassword);
+
+router.put('/:id', [
+   validateJWT,
+
+   param('id')
+      .not().isEmpty().withMessage('El id es obligatorio').bail()
+      .isInt({min: 1}).withMessage('El id es inválido'),
 
    body('name').optional()
       .isAlpha('es-ES', { ignore: ' '}).withMessage('El nombre debe contener solo letras'),

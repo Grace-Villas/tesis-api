@@ -361,17 +361,33 @@ const renew = async (req = request, res = response) => {
 
 /**
  * Actualizar información de un usuario dado su jwt (JsonWebToken).
- * @param {integer} x-token integer. `headers`.
+ * @param {integer} x-token string. `headers`.
+ * @param {string} id integer. `param`.
  * @param {string} name string. `body`. Opcional.
  * @param {string} email string, email. `body`. Opcional.
  */
 const findByJWTAndUpdate = async (req = request, res = response) => {
    try {
       const { name, stringEmail } = req.body;
+   
+      const { id } = req.params;
 
       const authUser = req.authUser;
 
-      const user = await User.findByPk(authUser.id);
+      if (authUser.id !== Number(id)) {
+         return res.status(400).json({
+            errors: [
+               {
+                  value: id,
+                  msg: 'No puedes editar un usuario diferente al tuyo',
+                  param: 'id',
+                  location: 'params'
+               }
+            ]
+         });
+      }
+
+      const user = await User.findByPk(id);
 
       if (name) {
          user.name = name.toLocaleLowerCase();
@@ -380,6 +396,51 @@ const findByJWTAndUpdate = async (req = request, res = response) => {
       if (stringEmail) {
          user.email = stringEmail;
       }
+
+      await user.save();
+
+      res.json(user);
+   } catch (error) {
+      console.log(error);
+      res.status(500).json(error);
+   }
+}
+
+/**
+ * Actualizar contraseña de un usuario dado su jwt (JsonWebToken).
+ * @param {integer} x-token string. `headers`.
+ * @param {string} oldPassword string. `body`.
+ * @param {string} newPassword string, email. `body`.
+ */
+const findByJWTAndUpdatePassword = async (req = request, res = response) => {
+   try {
+      const { oldPassword, newPassword } = req.body;
+
+      const authUser = req.authUser;
+
+      const user = await User.findByPk(authUser.id);
+
+      // Verificar password
+      const validPassword = bcryptjs.compareSync(oldPassword, user.password);
+
+      if (!validPassword) {
+         return res.status(400).json({
+            errors: [
+               {
+                  value: oldPassword,
+                  msg: 'Contraseña incorrecta',
+                  param: 'oldPassword',
+                  location: 'body'
+               }
+            ]
+         });
+      }
+
+      //Encriptado de contraseña
+      const salt = bcryptjs.genSaltSync();
+      const hashPassword = bcryptjs.hashSync(newPassword, salt);
+
+      user.password = hashPassword;
 
       await user.save();
 
@@ -403,5 +464,6 @@ module.exports = {
    // Auth y area personal
    login,
    renew,
-   findByJWTAndUpdate
+   findByJWTAndUpdate,
+   findByJWTAndUpdatePassword
 }
