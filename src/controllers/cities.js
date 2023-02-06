@@ -32,7 +32,7 @@ const create = async (req = request, res = response) => {
  */
 const findAll = async (req = request, res = response) => {
    try {
-      const { skip, limit } = req.query;
+      const { skip = 0, limit } = req.query;
 
       if (limit) {
          const { rows, count } = await City.findAndCountAll({
