@@ -151,7 +151,9 @@ const findByIdAndUpdate = async (req = request, res = response) => {
    
       const { id } = req.params;
 
-      const state = await State.findByPk(id);
+      const state = await State.findByPk(id, {
+         include: eLoad
+      });
 
       if (!state) {
          return res.status(400).json({
@@ -175,6 +177,7 @@ const findByIdAndUpdate = async (req = request, res = response) => {
       }
 
       await state.save();
+      await state.reload();
 
       res.json(state);
    } catch (error) {
