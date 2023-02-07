@@ -1,9 +1,17 @@
 const { request, response } = require('express');
 
 // Modelos
-const { State } = require('../database/models');
+const { State, Country } = require('../database/models');
 
 
+
+// Eager loading
+const eLoad = [
+   {
+      model: Country,
+      as: 'country'
+   }
+];
 
 // Funciones del controlador
 
@@ -36,6 +44,7 @@ const findAll = async (req = request, res = response) => {
 
       if (limit) {
          const { rows, count } = await State.findAndCountAll({
+            include: eLoad,
             offset: Number(skip),
             limit: Number(limit),
             order: [
@@ -52,6 +61,7 @@ const findAll = async (req = request, res = response) => {
          });
       } else {
          const states = await State.findAll({
+            include: eLoad,
             order: [
                ['name', 'ASC']
             ]
@@ -73,7 +83,9 @@ const findById = async (req = request, res = response) => {
    try {
       const { id } = req.params;
 
-      const state = await State.findByPk(id);
+      const state = await State.findByPk(id, {
+         include: eLoad
+      });
 
       if (!state) {
          return res.status(400).json({
