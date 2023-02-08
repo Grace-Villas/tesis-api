@@ -10,13 +10,14 @@ const { User, UserRole, Role, RolePermission, Permission } = require('../databas
 
 /**
  * Crear un nuevo usuario con privilegios de administrador. 
- * @param {string} name string. `body`.
+ * @param {string} firstName string. `body`.
+ * @param {string} lastName string. `body`.
  * @param {string} email string, email. `body`.
  * @param {string} password string. `body`
  */
 const install = async (req = request, res = response) => {
    try {
-      const { name, stringEmail, password } = req.body;
+      const { firstName, lastName, stringEmail, password } = req.body;
 
       //Encriptado de contraseña
       const salt = bcryptjs.genSaltSync();
@@ -27,7 +28,8 @@ const install = async (req = request, res = response) => {
 
       // Data para crear el usuario admin
       const data = {
-         name,
+         firstName,
+         lastName,
          email: stringEmail,
          password: hashPassword,
          userRoles: [{

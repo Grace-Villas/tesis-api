@@ -19,7 +19,11 @@ const router = Router();
 router.post('/', [
    validateInstalled,
    
-   body('name')
+   body('firstName')
+      .not().isEmpty().withMessage('El nombre es obligatorio').bail()
+      .isAlpha('es-ES', { ignore: ' '}).withMessage('El nombre debe contener solo letras'),
+   
+   body('lastName')
       .not().isEmpty().withMessage('El nombre es obligatorio').bail()
       .isAlpha('es-ES', { ignore: ' '}).withMessage('El nombre debe contener solo letras'),
       
@@ -30,7 +34,7 @@ router.post('/', [
    body('email')
       .not().isEmpty().withMessage('El email es obligatorio').bail()
       .isEmail().withMessage('El email es inválido').bail()
-      .custom((name, { req }) => validateUniqueEmail(name, { modelName: 'User', req })),
+      .custom((email, { req }) => validateUniqueEmail(email, { modelName: 'User', req })),
 
    validateFields
 ], install);
