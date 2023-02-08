@@ -52,8 +52,8 @@ router.post('/', [
       .isAlpha('es-ES', { ignore: ' '}).withMessage('El nombre debe contener solo letras'),
 
    body('lastName')
-      .not().isEmpty().withMessage('El nombre es obligatorio').bail()
-      .isAlpha('es-ES', { ignore: ' '}).withMessage('El nombre debe contener solo letras'),
+      .not().isEmpty().withMessage('El apellido es obligatorio').bail()
+      .isAlpha('es-ES', { ignore: ' '}).withMessage('El apellido debe contener solo letras'),
       
    body('password')
       .not().isEmpty().withMessage('La contraseña es obligatoria').bail()
@@ -85,7 +85,7 @@ router.put('/:id', [
       .isAlpha('es-ES', { ignore: ' '}).withMessage('El nombre debe contener solo letras'),
 
    body('lastName').optional()
-      .isAlpha('es-ES', { ignore: ' '}).withMessage('El nombre debe contener solo letras'),
+      .isAlpha('es-ES', { ignore: ' '}).withMessage('El apellido debe contener solo letras'),
 
    body('password').optional()
       .isLength({ min: 8 }).withMessage('La contraseña debe contener mínimo 8 caracteres'),
