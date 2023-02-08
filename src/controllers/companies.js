@@ -54,7 +54,8 @@ const create = async (req = request, res = response) => {
          phone,
          email: stringEmail,
          users: [{
-            name: stringName,
+            firstName: stringName,
+            lastName: '',
             email: stringEmail,
             password
          }]

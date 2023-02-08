@@ -14,14 +14,15 @@ const { formatUser } = require('../helpers/users');
 
 /**
  * Crear un nuevo usuario. Perteneciente a una compañía cliente
- * @param {string} name string. `body`.
+ * @param {string} firstName string. `body`.
+ * @param {string} lastName string. `body`.
  * @param {string} email string, email. `body`.
  * @param {string} password string. `body`.
  * @param {integer} companyId integer. `body`.
  */
 const create = async (req = request, res = response) => {
    try {
-      const { name, stringEmail, password } = req.body;
+      const { firstName, lastName, stringEmail, password } = req.body;
 
       const authUser = req.authUser;
 
@@ -29,7 +30,15 @@ const create = async (req = request, res = response) => {
       const salt = bcryptjs.genSaltSync();
       const hashPassword = bcryptjs.hashSync(password, salt);
 
-      const user = await User.create({ name, email: stringEmail, password: hashPassword, companyId: authUser.companyId });
+      const data = {
+         firstName,
+         lastName,
+         email: stringEmail,
+         password: hashPassword,
+         companyId: authUser.companyId
+      }
+
+      const user = await User.create(data);
 
       res.json(user);
    } catch (error) {
@@ -157,14 +166,15 @@ const findByIdAndDelete = async (req = request, res = response) => {
 /**
  * Actualizar información de un usuario dado su id.
  * @param {integer} id integer. `params`.
- * @param {string} name string. `body`. Opcional.
+ * @param {string} firstName string. `body`. Opcional.
+ * @param {string} lastName string. `body`. Opcional.
  * @param {string} email string, email. `body`. Opcional.
  * @param {string} password string. `body`. Opcional.
  * @param {integer} companyId integer. `body`. Opcional.
  */
 const findByIdAndUpdate = async (req = request, res = response) => {
    try {
-      const { name, stringEmail, password, companyId } = req.body;
+      const { firstName, lastName, stringEmail, password, companyId } = req.body;
    
       const { id } = req.params;
 
@@ -185,8 +195,12 @@ const findByIdAndUpdate = async (req = request, res = response) => {
          });
       }
 
-      if (name) {
-         user.name = name.toLocaleLowerCase();
+      if (firstName) {
+         user.firstName = firstName.toLocaleLowerCase();
+      }
+
+      if (lastName) {
+         user.lastName = lastName.toLocaleLowerCase();
       }
 
       if (stringEmail) {
@@ -361,14 +375,15 @@ const renew = async (req = request, res = response) => {
 
 /**
  * Actualizar información de un usuario dado su jwt (JsonWebToken).
- * @param {integer} x-token string. `headers`.
+ * @param {string} x-token string. `headers`.
  * @param {string} id integer. `param`.
- * @param {string} name string. `body`. Opcional.
+ * @param {string} firstName string. `body`. Opcional.
+ * @param {string} lastName string. `body`. Opcional.
  * @param {string} email string, email. `body`. Opcional.
  */
 const findByJWTAndUpdate = async (req = request, res = response) => {
    try {
-      const { name, stringEmail } = req.body;
+      const { firstName, lastName, stringEmail } = req.body;
    
       const { id } = req.params;
 
@@ -389,8 +404,12 @@ const findByJWTAndUpdate = async (req = request, res = response) => {
 
       const user = await User.findByPk(id);
 
-      if (name) {
-         user.name = name.toLocaleLowerCase();
+      if (firstName) {
+         user.firstName = firstName.toLocaleLowerCase();
+      }
+
+      if (lastName) {
+         user.lastName = lastName.toLocaleLowerCase();
       }
 
       if (stringEmail) {
@@ -408,7 +427,7 @@ const findByJWTAndUpdate = async (req = request, res = response) => {
 
 /**
  * Actualizar contraseña de un usuario dado su jwt (JsonWebToken).
- * @param {integer} x-token string. `headers`.
+ * @param {string} x-token string. `headers`.
  * @param {string} oldPassword string. `body`.
  * @param {string} newPassword string, email. `body`.
  */

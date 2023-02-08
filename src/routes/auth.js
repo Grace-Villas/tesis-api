@@ -56,8 +56,11 @@ router.put('/:id', [
       .not().isEmpty().withMessage('El id es obligatorio').bail()
       .isInt({min: 1}).withMessage('El id es inválido'),
 
-   body('name').optional()
+   body('firstName').optional()
       .isAlpha('es-ES', { ignore: ' '}).withMessage('El nombre debe contener solo letras'),
+
+   body('lastName').optional()
+      .isAlpha('es-ES', { ignore: ' '}).withMessage('El apellido debe contener solo letras'),
 
    body('email').optional()
       .isEmail().withMessage('El email es inválido').bail()

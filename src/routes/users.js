@@ -47,7 +47,11 @@ router.post('/', [
    validateJWT,
    validatePermission('users', 'create'),
 
-   body('name')
+   body('firstName')
+      .not().isEmpty().withMessage('El nombre es obligatorio').bail()
+      .isAlpha('es-ES', { ignore: ' '}).withMessage('El nombre debe contener solo letras'),
+
+   body('lastName')
       .not().isEmpty().withMessage('El nombre es obligatorio').bail()
       .isAlpha('es-ES', { ignore: ' '}).withMessage('El nombre debe contener solo letras'),
       
@@ -77,7 +81,10 @@ router.put('/:id', [
       .not().isEmpty().withMessage('El id es obligatorio').bail()
       .isInt({min: 1}).withMessage('El id es inválido'),
 
-   body('name').optional()
+   body('firstName').optional()
+      .isAlpha('es-ES', { ignore: ' '}).withMessage('El nombre debe contener solo letras'),
+
+   body('lastName').optional()
       .isAlpha('es-ES', { ignore: ' '}).withMessage('El nombre debe contener solo letras'),
 
    body('password').optional()
