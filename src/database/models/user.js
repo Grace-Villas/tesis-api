@@ -55,7 +55,7 @@ module.exports = (sequelize, DataTypes) => {
     fullName: {
       type: DataTypes.VIRTUAL,
       get() {
-        return `${this.firstName} ${this.lastName}`;
+        return `${this.firstName} ${this.lastName}`.trim();
       },
       set(value) {
         throw new Error('Do not try to set the `fullName` value!');
