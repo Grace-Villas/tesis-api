@@ -70,7 +70,7 @@ const findAll = async (req = request, res = response) => {
             offset: Number(skip),
             limit: Number(limit),
             order: [
-               ['name', 'ASC']
+               ['firstName', 'ASC']
             ]
          });
 
@@ -85,7 +85,7 @@ const findAll = async (req = request, res = response) => {
          const users = await User.findAll({
             where,
             order: [
-               ['name', 'ASC']
+               ['firstName', 'ASC']
             ]
          });
    
