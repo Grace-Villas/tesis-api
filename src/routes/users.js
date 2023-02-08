@@ -64,11 +64,6 @@ router.post('/', [
       .isEmail().withMessage('El email es inválido').bail()
       .custom((name, { req }) => validateUniqueEmail(name, { modelName: 'User', req })),
 
-   body('companyId')
-      .not().isEmpty().withMessage('El id es obligatorio').bail()
-      .isInt({min: 1}).withMessage('El id es inválido').bail()
-      .custom(validateCompanyId),
-
    validateFields
 ], create);
 
@@ -93,10 +88,6 @@ router.put('/:id', [
    body('email').optional()
       .isEmail().withMessage('El email es inválido').bail()
       .custom((name, { req }) => validateUniqueEmail(name, { modelName: 'User', req, isUpdate: true })),
-
-   body('companyId').optional()
-      .isInt({min: 1}).withMessage('El id es inválido').bail()
-      .custom(validateCompanyId),
    
    validateFields
 ], findByIdAndUpdate);

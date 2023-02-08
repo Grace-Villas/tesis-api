@@ -18,7 +18,6 @@ const { formatUser } = require('../helpers/users');
  * @param {string} lastName string. `body`.
  * @param {string} email string, email. `body`.
  * @param {string} password string. `body`.
- * @param {integer} companyId integer. `body`.
  */
 const create = async (req = request, res = response) => {
    try {
@@ -174,7 +173,7 @@ const findByIdAndDelete = async (req = request, res = response) => {
  */
 const findByIdAndUpdate = async (req = request, res = response) => {
    try {
-      const { firstName, lastName, stringEmail, password, companyId } = req.body;
+      const { firstName, lastName, stringEmail, password } = req.body;
    
       const { id } = req.params;
 
@@ -213,10 +212,6 @@ const findByIdAndUpdate = async (req = request, res = response) => {
          const hashPassword = bcryptjs.hashSync(password, salt);
 
          user.password = hashPassword;
-      }
-
-      if (companyId) {
-         user.companyId = companyId;
       }
 
       await user.save();
