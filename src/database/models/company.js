@@ -54,11 +54,6 @@ module.exports = (sequelize, DataTypes) => {
           msg: 'El correo electrónico debe tener un formato válido'
         }
       }
-    },
-    isClient: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      defaultValue: true
     }
   }, {
     sequelize,
