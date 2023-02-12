@@ -7,32 +7,39 @@ module.exports = {
     const permissions = [
       {
         name: 'users',
+        showName: 'usuarios',
         isPublic: true
       },
       {
         name: 'roles',
+        showName: 'roles',
         isPublic: true
       },
       {
         name: 'companies',
+        showName: 'clientes',
         isPublic: false
       },
       {
         name: 'cities',
+        showName: 'ciudades',
         isPublic: false
       },
       {
         name: 'states',
+        showName: 'estados',
         isPublic: false
       },
       {
         name: 'countries',
+        showName: 'países',
         isPublic: false
       }
     ]
 
     await queryInterface.bulkInsert('permissions', permissions.map(per => ({
       name: per.name,
+      showName: per.showName,
       isPublic: per.isPublic,
       createdAt: new Date(),
       updatedAt: new Date()

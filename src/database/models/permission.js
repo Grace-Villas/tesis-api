@@ -19,6 +19,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false
     },
+    showName: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
     isPublic: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
