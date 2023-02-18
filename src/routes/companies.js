@@ -98,8 +98,8 @@ router.put('/:id', [
    body('email').optional()
       .not().isEmpty().withMessage('El email es obligatorio').bail()
       .isEmail().withMessage('El email es inválido')
-      .custom((name, { req }) => validateUniqueEmail(name, { modelName: 'Company', req, isUpdate: true }))
-      .custom((name, { req }) => validateUniqueEmail(name, { modelName: 'User', req })),
+      .custom((name, { req }) => validateUniqueEmail(name, { modelName: 'Company', req, isUpdate: true })),
+      // .custom((name, { req }) => validateUniqueEmail(name, { modelName: 'User', req })), TODO: arreglar funcionalidad de cambio de correo
 
    body('rut').optional()
       .not().isEmpty().withMessage('El documento es obligatorio').bail()
