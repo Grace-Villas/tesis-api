@@ -1,10 +1,29 @@
 const { request, response } = require('express');
+const { Op } = require('sequelize');
 
 // Modelos
-const { Company, City, User } = require('../database/models');
+const { Company, City, State, Country, User } = require('../database/models');
 
 // Helpers
 const { generatePassword } = require('../helpers/password-generator');
+
+
+
+// Eager loading
+const eLoad = [
+   {
+      model: City,
+      as: 'city',
+      include: {
+         model: State,
+         as: 'state',
+         include: {
+            model: Country,
+            as: 'country'
+         }
+      }
+   }
+];
 
 
 
@@ -86,6 +105,7 @@ const findAll = async (req = request, res = response) => {
 
       if (limit) {
          const { rows, count } = await Company.findAndCountAll({
+            include: eLoad,
             offset: Number(skip),
             limit: Number(limit),
             order: [
@@ -102,6 +122,7 @@ const findAll = async (req = request, res = response) => {
          });
       } else {
          const companies = await Company.findAll({
+            include: eLoad,
             order: [
                ['name', 'ASC']
             ]
@@ -123,7 +144,9 @@ const findById = async (req = request, res = response) => {
    try {
       const { id } = req.params;
       
-      const company = await Company.findByPk(id);
+      const company = await Company.findByPk(id, {
+         include: eLoad,
+      });
 
       if (!company) {
          return res.status(400).json({
@@ -193,7 +216,9 @@ const findByIdAndUpdate = async (req = request, res = response) => {
    
       const { id } = req.params;
 
-      const company = await Company.findByPk(id);
+      const company = await Company.findByPk(id, {
+         include: eLoad
+      });
 
       if (!company) {
          return res.status(400).json({
@@ -228,13 +253,19 @@ const findByIdAndUpdate = async (req = request, res = response) => {
          const stringRut = rut.toLocaleLowerCase();
 
          const rutExists = await Company.findOne({
-            where: { rut: stringRut }
+            where: { rut: stringRut, id: { [Op.ne]: id } }
          });
-
+   
          if (rutExists) {
             return res.status(400).json({
-               error: 'rut',
-               response: `El rut: ${rut} ya se encuentra en uso`
+               errors: [
+                  {
+                     value: rut,
+                     msg: `El rut: ${rut} ya se encuentra en uso`,
+                     param: 'rut',
+                     location: 'body'
+                  }
+               ]
             });
          }
 
@@ -242,19 +273,12 @@ const findByIdAndUpdate = async (req = request, res = response) => {
       }
 
       if (cityId) {
-         const city = await City.findByPk(cityId);
-
-         if (city) {
-            return res.status(400).json({
-               error: 'cityId',
-               response: `El id: ${cityId} no se encuentra en la base de datos`
-            });
-         }
-
          company.cityId = cityId;
       }
 
       await company.save();
+
+      await company.reload();
 
       res.json(company);
    } catch (error) {
