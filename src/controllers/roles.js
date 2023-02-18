@@ -23,7 +23,7 @@ const create = async (req = request, res = response) => {
 
       const data = {
          name: name.toLocaleLowerCase(),
-         hexColor,
+         hexColor: hexColor.toLocaleUpperCase(),
          companyId: user.companyId,
          isPublic: !user.isAdmin ? false : isPublic,
          rolePermissions: permissions.map(per => ({
@@ -201,7 +201,7 @@ const findByIdAndUpdate = async (req = request, res = response) => {
       }
 
       if (hexColor) {
-         role.hexColor = hexColor;
+         role.hexColor = hexColor.toLocaleUpperCase();
       }
 
       await role.save();
