@@ -2,9 +2,21 @@ const { request, response } = require('express');
 const { Op } = require('sequelize');
 
 // Modelos
-const { Role, RolePermission, UserRole, User } = require('../database/models');
+const { Role, RolePermission, Permission, UserRole, User } = require('../database/models');
 
 
+
+// Eager loading
+const eLoad = [
+   {
+      model: RolePermission,
+      as: 'rolePermissions',
+      include: {
+         model: Permission,
+         as: 'permission'
+      }
+   }
+];
 
 // Funciones del controlador
 
@@ -13,7 +25,7 @@ const { Role, RolePermission, UserRole, User } = require('../database/models');
  * @param {string} name string. `body`.
  * @param {string} hexColor string. `body`. Por defecto `#FFFFFF`
  * @param {boolean} isPublic boolean. `body`. Por defecto `false`
- * @param {Array<{id: integer, list: boolean, create: boolean, update: boolean, delete: boolean}>} permissions array. `body`.
+ * @param {Array<{id: integer, list: boolean, create: boolean, edit: boolean, delete: boolean}>} permissions array. `body`.
  */
 const create = async (req = request, res = response) => {
    try {
@@ -30,7 +42,7 @@ const create = async (req = request, res = response) => {
             permissionId: per.id,
             list: per.list,
             create: per.create,
-            update: per.update,
+            edit: per.edit,
             delete: per.delete
          }))
       }
@@ -70,6 +82,7 @@ const findAll = async (req = request, res = response) => {
       if (limit) {
          const { rows, count } = await Role.findAndCountAll({
             where,
+            include: eLoad,
             offset: Number(skip),
             limit: Number(limit),
             order: [
@@ -87,6 +100,7 @@ const findAll = async (req = request, res = response) => {
       } else {
          const roles = await Role.findAll({
             where,
+            include: eLoad,
             order: [
                ['name', 'ASC']
             ]
@@ -110,7 +124,12 @@ const findById = async (req = request, res = response) => {
 
       const user = req.authUser;
 
-      const role = await Role.findByPk(id);
+      const role = await Role.findByPk(id, {
+         include: eLoad,
+         order: [
+            [{ model: RolePermission, as: 'rolePermissions' }, { model: Permission, as: 'permission' }, 'showName', 'ASC']
+         ]
+      });
 
       if (!role || (!role.isPublic && role.companyId !== user.companyId)) {
          return res.status(400).json({
