@@ -13,12 +13,12 @@ const { RolePermission, Role } = require('../database/models');
  * @param {integer} roleId integer. `body`.
  * @param {boolean} list boolean. `body`. Opcional. Por defecto: `false`
  * @param {boolean} create boolean. `body`. Opcional. Por defecto: `false`
- * @param {boolean} update boolean. `body`. Opcional. Por defecto: `false`
+ * @param {boolean} edit boolean. `body`. Opcional. Por defecto: `false`
  * @param {boolean} delete boolean. `body`. Opcional. Por defecto: `false`
  */
 const create = async (req = request, res = response) => {
    try {
-      const { permissionId, roleId, list = false, create = false, update = false, delete: del = false } = req.body;
+      const { permissionId, roleId, list = false, create = false, edit = false, delete: del = false } = req.body;
 
       const exists = await RolePermission.findOne({
          where: { permissionId, roleId }
@@ -36,7 +36,7 @@ const create = async (req = request, res = response) => {
          });
       }
 
-      const data = { permissionId, roleId, list, create, update, delete: del }
+      const data = { permissionId, roleId, list, create, edit, delete: del }
 
       const rolePermission = await RolePermission.create(data);
 
@@ -77,6 +77,19 @@ const findByIdAndDelete = async (req = request, res = response) => {
          });
       }
 
+      if (rolePermission.role.isPublic) {
+         return res.status(400).json({
+            errors: [
+               {
+                  value: id,
+                  msg: `El id: ${id} no se puede eliminar debido a que pertenece a un rol público`,
+                  param: 'id',
+                  location: 'params'
+               }
+            ]
+         });
+      }
+
       await rolePermission.destroy();
    
       res.json(rolePermission);
@@ -92,12 +105,12 @@ const findByIdAndDelete = async (req = request, res = response) => {
  * @param {integer} id integer. `params`
  * @param {boolean} list boolean. `body`. Opcional
  * @param {boolean} create boolean. `body`. Opcional
- * @param {boolean} update boolean. `body`. Opcional
+ * @param {boolean} edit boolean. `body`. Opcional
  * @param {boolean} delete boolean. `body`. Opcional
  */
 const findByIdAndUpdate = async (req = request, res = response) => {
    try {
-      const { list, create, update, delete: del } = req.body;
+      const { list, create, edit, delete: del } = req.body;
    
       const { id } = req.params;
 
@@ -123,19 +136,32 @@ const findByIdAndUpdate = async (req = request, res = response) => {
          });
       }
 
-      if (list) {
+      if (rolePermission.role.isPublic) {
+         return res.status(400).json({
+            errors: [
+               {
+                  value: id,
+                  msg: `El id: ${id} no se puede editar debido a que pertenece a un rol público`,
+                  param: 'id',
+                  location: 'params'
+               }
+            ]
+         });
+      }
+
+      if (typeof list != 'undefined') {
          rolePermission.list = list;
       }
 
-      if (create) {
+      if (typeof create != 'undefined') {
          rolePermission.create = create;
       }
 
-      if (update) {
-         rolePermission.update = update;
+      if (typeof edit != 'undefined') {
+         rolePermission.edit = edit;
       }
 
-      if (del) {
+      if (typeof del != 'undefined') {
          rolePermission.delete = del;
       }
 
