@@ -81,7 +81,7 @@ router.post('/', [
       .not().isEmpty().withMessage('El valor de crear del permiso es obligatorio').bail()
       .isBoolean().withMessage('El valor debe ser un booleano'),
 
-   body('permissions.*.update')
+   body('permissions.*.edit')
       .not().isEmpty().withMessage('El valor de actualización del permiso es obligatorio').bail()
       .isBoolean().withMessage('El valor debe ser un booleano'),
 
@@ -113,7 +113,7 @@ router.post('/user-role', [
 // Actualizar un rol
 router.put('/:id', [
    validateJWT,
-   validatePermission('roles', 'update'),
+   validatePermission('roles', 'edit'),
 
    param('id')
       .not().isEmpty().withMessage('El id es obligatorio').bail()

@@ -64,7 +64,7 @@ router.post('/', [
 // Actualizar una ciudad
 router.put('/:id', [
    validateJWT,
-   validatePermission('cities', 'update', true),
+   validatePermission('cities', 'edit', true),
 
    param('id')
       .not().isEmpty().withMessage('El id es obligatorio').bail()

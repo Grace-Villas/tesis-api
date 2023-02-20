@@ -13,11 +13,11 @@ const formatUser = (user) => {
 
    data.userRoles.forEach(({role}) => {
       const privileges = role.rolePermissions.map(per => {
-         const { permission, list, create, update, delete: del } = per.get();
+         const { permission, list, create, edit, delete: del } = per.get();
 
          return {
             name: permission.name,
-            options: { list, create, update, delete: del }
+            options: { list, create, edit, delete: del }
          }
       });
 

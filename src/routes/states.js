@@ -64,7 +64,7 @@ router.post('/', [
 // Actualizar un estado
 router.put('/:id', [
    validateJWT,
-   validatePermission('states', 'update', true),
+   validatePermission('states', 'edit', true),
 
    param('id')
       .not().isEmpty().withMessage('El id es obligatorio').bail()

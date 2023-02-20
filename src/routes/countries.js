@@ -65,7 +65,7 @@ router.post('/', [
 // Actualizar un país
 router.put('/:id', [
    validateJWT,
-   validatePermission('countries', 'update', true),
+   validatePermission('countries', 'edit', true),
 
    param('id')
       .not().isEmpty().withMessage('El id es obligatorio').bail()

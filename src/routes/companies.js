@@ -81,7 +81,7 @@ router.post('/', [
 // Actualizar una compañía
 router.put('/:id', [
    validateJWT,
-   validatePermission('users', 'update', true),
+   validatePermission('users', 'edit', true),
 
    param('id')
       .isInt({min: 1}).withMessage('El id es inválido').bail()

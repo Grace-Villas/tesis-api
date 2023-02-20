@@ -70,7 +70,7 @@ router.post('/', [
 // Actualizar un usuario
 router.put('/:id', [
    validateJWT,
-   validatePermission('users', 'update'),
+   validatePermission('users', 'edit'),
 
    param('id')
       .not().isEmpty().withMessage('El id es obligatorio').bail()

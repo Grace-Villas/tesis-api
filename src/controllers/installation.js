@@ -40,7 +40,7 @@ const install = async (req = request, res = response) => {
                rolePermissions: permissions.map(per => ({
                   list: true,
                   create: true,
-                  update: true,
+                  edit: true,
                   delete: true,
                   permissionId: per.id
                }))
