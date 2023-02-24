@@ -3,9 +3,9 @@ const { User } = require('../database/models');
 
 
 const validateInstalled = async (req = request, res = response, next) => {
-   const users = await User.findAll({ paranoid: false });
+   const usersCount = await User.count({ paranoid: false });
    
-   if(users.length > 0) {
+   if(usersCount > 0) {
       return res.status(400).json({
          errors: [
             {
