@@ -4,6 +4,8 @@ const bcryptjs = require('bcryptjs');
 // Modelos
 const { User, UserRole, Role, RolePermission, Permission } = require('../database/models');
 
+const { generateJWT } = require('../helpers/jwt');
+
 
 
 // Funciones del controlador
@@ -67,7 +69,31 @@ const install = async (req = request, res = response) => {
          }
       });
 
-      res.json(user);
+      // Generar JWT
+      const token = await generateJWT(user.id, user.uuid);
+
+      res.json({
+         user,
+         token
+      });
+   } catch (error) {
+      console.log(error);
+      res.status(500).json(error);
+   }
+}
+
+/**
+ * Verificar si fue o no instalado el sistema
+ */
+const verifyInstallation = async (req = request, res = response) => {
+   try {
+      const usersCount = await User.count({ paranoid: false });
+
+      if (usersCount > 0) {
+         return res.json({ isInstalled: true });
+      }
+
+      res.json({ isInstalled: false })
    } catch (error) {
       console.log(error);
       res.status(500).json(error);
@@ -77,5 +103,6 @@ const install = async (req = request, res = response) => {
 
 // Exports
 module.exports = {
-   install
+   install,
+   verifyInstallation
 }

@@ -1,12 +1,13 @@
 const { Router } = require('express');
-const { body, query, param } = require('express-validator');
+const { body } = require('express-validator');
 
 const { validateFields } = require('../middlewares/validate-fields');
 const { validateUniqueEmail } = require('../middlewares/custom-express');
 const { validateInstalled } = require('../middlewares/installation');
 
 const {
-   install
+   install,
+   verifyInstallation
 } = require('../controllers/installation');
 
 
@@ -15,7 +16,10 @@ const router = Router();
 
 // Rutas
 
-// Crear un nuevo usuario
+// Verificar si el sistema está inicializado o no
+router.get('/', verifyInstallation);
+
+// Inicializar sistema con datos básicos
 router.post('/', [
    validateInstalled,
    
