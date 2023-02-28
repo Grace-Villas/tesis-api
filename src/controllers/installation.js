@@ -5,6 +5,8 @@ const bcryptjs = require('bcryptjs');
 const { User, UserRole, Role, RolePermission, Permission } = require('../database/models');
 
 const { generateJWT } = require('../helpers/jwt');
+const { installationMailer } = require('../helpers/mailing');
+const { capitalizeAllWords } = require('../helpers/format');
 
 
 
@@ -30,8 +32,8 @@ const install = async (req = request, res = response) => {
 
       // Data para crear el usuario admin
       const data = {
-         firstName,
-         lastName,
+         firstName: firstName.toLocaleLowerCase(),
+         lastName: lastName.toLocaleLowerCase(),
          email: stringEmail,
          password: hashPassword,
          userRoles: [{
@@ -67,6 +69,14 @@ const install = async (req = request, res = response) => {
                }
             }
          }
+      });
+
+      await installationMailer({
+         to: stringEmail,
+         subject: '¡Bienvenido a LogisticsChain!'
+      }, {
+         fullName: capitalizeAllWords(user.fullName),
+         password
       });
 
       // Generar JWT
