@@ -64,7 +64,7 @@ class Server {
             this.app.use(`/api/${path}`, router);
         });
 
-        // this.app.use('/public', express.static('public'));
+        this.app.use('/public', express.static('public'));
     }
 
     // Método para lanzar el servidor
