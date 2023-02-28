@@ -30,8 +30,8 @@ const create = async (req = request, res = response) => {
       const hashPassword = bcryptjs.hashSync(password, salt);
 
       const data = {
-         firstName,
-         lastName,
+         firstName: firstName.toLocaleLowerCase(),
+         lastName: lastName.toLocaleLowerCase(),
          email: stringEmail,
          password: hashPassword,
          companyId: authUser.companyId
