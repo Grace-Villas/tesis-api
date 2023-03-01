@@ -3,6 +3,8 @@ const { Op } = require('sequelize');
 
 // Modelos
 const { Company, City, State, Country, User } = require('../database/models');
+const { capitalizeAllWords } = require('../helpers/format');
+const { companyRegistrationMailer } = require('../helpers/mailing');
 
 // Helpers
 const { generatePassword } = require('../helpers/password-generator');
@@ -85,6 +87,16 @@ const create = async (req = request, res = response) => {
             model: User,
             as: 'users'
          }
+      });
+
+      await companyRegistrationMailer({
+         from: "'empresaRegistrada' <correoregistrado@extension.com>",
+         to: stringEmail,
+         subject: '¡Bienvenido a empresaRegistrada!'
+      }, {
+         companyName: 'empresaRegistrada',
+         clientName: capitalizeAllWords(company.name),
+         password
       });
 
       res.json(company);

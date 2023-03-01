@@ -2,6 +2,7 @@ const nodemailer = require('nodemailer');
 const fs = require('fs');
 const path = require('path');
 const handlebars = require('handlebars');
+const SMTPTransport = require('nodemailer/lib/smtp-transport');
 
 
 const transporter = nodemailer.createTransport({
@@ -20,7 +21,7 @@ const transporter = nodemailer.createTransport({
  * @returns 
  */
 const mailer = async ({
-   from = "'Logistics chain' <noreply@logisticschain.click>",
+   from = "'LogisticsChain' <noreply@logisticschain.click>",
    to,
    subject,
    html
@@ -28,8 +29,9 @@ const mailer = async ({
 
 /**
  * Función para enviar correo de instalación
- * @param {{to:string,subject:string}} config 
- * @param {*} templateData 
+ * @param {{to:string,subject:string}} config datos de configuración del mailer
+ * @param {{fullName:string,password:string}} templateData datos del template
+ * @returns {Promise<SMTPTransport.SentMessageInfo>}
  */
 const installationMailer = async ({to, subject}, {fullName, password}) => {
    const templateSource = await fs.promises.readFile(path.join(__dirname, '../emails/installation.hbs'), 'utf-8');
@@ -38,7 +40,28 @@ const installationMailer = async ({to, subject}, {fullName, password}) => {
 
    const html = template({fullName, password, clientUri: process.env.CLIENT_URI, apiUri: process.env.API_URI});
 
-   await mailer({
+   return await mailer({
+      to,
+      subject,
+      html
+   });
+}
+
+/**
+ * Función para enviar correo de instalación
+ * @param {{from:string,to:string,subject:string}} config datos de configuración del mailer
+ * @param {{companyName:string,clientName:string,password:string}} templateData datos del template
+ * @returns {Promise<SMTPTransport.SentMessageInfo>}
+ */
+const companyRegistrationMailer = async ({from, to, subject}, {companyName, clientName, password}) => {
+   const templateSource = await fs.promises.readFile(path.join(__dirname, '../emails/company-registration.hbs'), 'utf-8');
+
+   const template = handlebars.compile(templateSource);
+
+   const html = template({companyName, clientName, password, clientUri: process.env.CLIENT_URI, apiUri: process.env.API_URI});
+
+   return await mailer({
+      from,
       to,
       subject,
       html
@@ -49,5 +72,7 @@ const installationMailer = async ({to, subject}, {fullName, password}) => {
 
 module.exports = {
    mailer,
-   installationMailer
+
+   installationMailer,
+   companyRegistrationMailer
 }
