@@ -3,11 +3,11 @@ const { Op } = require('sequelize');
 
 // Modelos
 const { Company, City, State, Country, User } = require('../database/models');
-const { capitalizeAllWords } = require('../helpers/format');
-const { companyRegistrationMailer } = require('../helpers/mailing');
 
 // Helpers
 const { generatePassword } = require('../helpers/password-generator');
+const { capitalizeAllWords } = require('../helpers/format');
+const { companyRegistrationMailer } = require('../helpers/mailing');
 
 
 
