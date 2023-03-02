@@ -22,6 +22,9 @@ class Server {
         // Usando express para iniciar servidor
         this.app = express();
 
+        // Para obtener los ip del request
+        this.app.set('trust proxy', true);
+
         // Declarando el puerto a usar (tomado de las variables de entorno)
         this.port = process.env.PORT;
 
