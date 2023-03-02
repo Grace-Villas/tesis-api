@@ -35,6 +35,7 @@ router.get('/renew', [
    validateJWT
 ], renew);
 
+// Actualizar contraseña
 router.put('/password', [
    validateJWT,
 
@@ -49,6 +50,7 @@ router.put('/password', [
    validateFields
 ], findByJWTAndUpdatePassword);
 
+// Actualizar atributos de un usuario autenticado
 router.put('/:id', [
    validateJWT,
 
