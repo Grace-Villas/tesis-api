@@ -5,8 +5,10 @@ const bcryptjs = require('bcryptjs');
 // Modelos
 const { User, UserRole, Role, RolePermission, Permission, Company } = require('../database/models');
 
+// Helpers
 const { generateJWT } = require('../helpers/jwt');
 const { formatUser } = require('../helpers/users');
+const { userRegistrationMailer } = require('../helpers/mailing');
 
 
 
@@ -37,7 +39,21 @@ const create = async (req = request, res = response) => {
          companyId: authUser.companyId
       }
 
-      const user = await User.create(data);
+      const [user, company] = await Promise.all([
+         User.create(data),
+         Company.findByPk(authUser.companyId)
+      ]);
+
+      await userRegistrationMailer({
+         from: "'empresaRegistrada' <correoregistrado@extension.com>",
+         to: stringEmail,
+         subject: '¡Bienvenido a empresaRegistrada!'
+      }, {
+         companyName: 'empresaRegistrada',
+         userName: capitalizeAllWords(user.fullName),
+         clientName: capitalizeAllWords(company.name),
+         password
+      });
 
       res.json(user);
    } catch (error) {
