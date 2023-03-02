@@ -4,7 +4,7 @@
 /**
  * Función para capitalizar todas las palabras de un texto
  * @param {string} string texto a capitalizar
- * @returns {string}
+ * @returns {string} texto capitalizado
  */
 const capitalizeAllWords = (string) => {
    const splitted = string.split(' ');
