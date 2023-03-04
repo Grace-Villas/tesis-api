@@ -93,6 +93,38 @@ const userRegistrationMailer = async ({from, to, subject}, {companyName, userNam
    });
 }
 
+/**
+ * Función para enviar correo de reseteo de contraseña
+ * @async
+ * @param {{from:string,to:string,subject:string}} config datos de configuración del mailer
+ * @param {{companyName:string,userName:string,userEmail:string,userUUID:string,userIp:string,userJWT:string,clientName:string,password:string}} templateData datos del template
+ * @returns {Promise<SMTPTransport.SentMessageInfo>} información del correo enviado
+ */
+const passwordRecoveryMailer = async ({from, to, subject}, {companyName, userName, userEmail, userUUID, userIp, userJWT, clientName}) => {
+   const templateSource = await fs.promises.readFile(path.join(__dirname, '../emails/password-reset.hbs'), 'utf-8');
+
+   const template = handlebars.compile(templateSource);
+
+   const html = template({
+      companyName,
+      userName,
+      userEmail,
+      userUUID,
+      userIp,
+      userJWT,
+      clientName,
+      clientUri: process.env.CLIENT_URI,
+      apiUri: process.env.API_URI
+   });
+
+   return await mailer({
+      from,
+      to,
+      subject,
+      html
+   });
+}
+
 
 
 module.exports = {
@@ -100,5 +132,7 @@ module.exports = {
 
    installationMailer,
    companyRegistrationMailer,
-   userRegistrationMailer
+   userRegistrationMailer,
+
+   passwordRecoveryMailer,
 }
