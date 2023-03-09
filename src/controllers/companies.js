@@ -8,6 +8,7 @@ const { Company, City, State, Country, User } = require('../database/models');
 const { generatePassword } = require('../helpers/password-generator');
 const { capitalizeAllWords } = require('../helpers/format');
 const { companyRegistrationMailer } = require('../helpers/mailing');
+const CompanyConfig = require('../helpers/config');
 
 
 
@@ -89,12 +90,14 @@ const create = async (req = request, res = response) => {
          }
       });
 
+      const config = await CompanyConfig.instance();
+
       await companyRegistrationMailer({
-         from: "'empresaRegistrada' <correoregistrado@extension.com>",
+         from: `'${config.get('name')}' <${config.get('email')}>`,
          to: stringEmail,
-         subject: '¡Bienvenido a empresaRegistrada!'
+         subject: `¡Bienvenido a ${config.get('name')}!`
       }, {
-         companyName: 'empresaRegistrada',
+         companyName: config.get('name'),
          clientName: capitalizeAllWords(company.name),
          password
       });

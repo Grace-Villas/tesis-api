@@ -11,6 +11,7 @@ const { formatUser } = require('../helpers/users');
 const { userRegistrationMailer, passwordRecoveryMailer } = require('../helpers/mailing');
 const { getIpAdress } = require('../helpers/ip-adress');
 const { capitalizeAllWords } = require('../helpers/format');
+const CompanyConfig = require('../helpers/config');
 
 
 
@@ -46,12 +47,14 @@ const create = async (req = request, res = response) => {
          Company.findByPk(authUser.companyId)
       ]);
 
+      const config = CompanyConfig.instance();
+
       await userRegistrationMailer({
-         from: "'empresaRegistrada' <correoregistrado@extension.com>",
+         from: `'${config.get('name')}' <${config.get('email')}>`,
          to: stringEmail,
-         subject: '¡Bienvenido a empresaRegistrada!'
+         subject: `¡Bienvenido a ${config.get('name')}!`
       }, {
-         companyName: 'empresaRegistrada',
+         companyName: config.get('name'),
          userName: capitalizeAllWords(user.fullName),
          clientName: capitalizeAllWords(company.name),
          password
@@ -513,18 +516,20 @@ const findByEmailAndPasswordRecovery = async (req = request, res = response) => 
       // Generar JWT
       const userJWT = await generateResetJWT(user.id, user.uuid, user.password, '1h');
 
+      const config = CompanyConfig.instance();
+
       await passwordRecoveryMailer({
-         from: "'empresaRegistrada' <correoregistrado@extension.com>",
+         from: `'${config.get('name')}' <${config.get('email')}>`,
          to: user.email,
          subject: '¡Solicitud de cambio de contraseña!'
       }, {
-         companyName: 'empresaRegistrada',
+         companyName: config.get('name'),
          userName: capitalizeAllWords(user.fullName),
          userEmail: user.email,
          userUUID: user.uuid,
          userIp: getIpAdress(req),
          userJWT,
-         clientName: capitalizeAllWords(user.company?.name || 'empresaRegistrada')
+         clientName: capitalizeAllWords(user.company?.name || config.get('name'))
       });
 
       res.json({sent: true});
