@@ -27,7 +27,12 @@ class CompanyConfig {
 
       const objectData = Object.fromEntries(data);
 
-      return new CompanyConfig(objectData);
+      const configData = {
+         ...objectData,
+         palletDat: Number(objectData.palletDay)
+      }
+
+      return new CompanyConfig(configData);
    }
 
    /**
@@ -38,7 +43,6 @@ class CompanyConfig {
     * @property {string} emailContact Correo de contacto de la empresa instalada
     * @property {string} phone Teléfono de contacto de la empresa instalada
     * @property {number} palletDay Costo por día de almacenamiento de la paleta no refrigerada de la empresa instalada
-    * @property {number} palletDayCold Costo por día de almacenamiento de la paleta refrigerada de la empresa instalada
     * @property {string} country País de ubicación de la empresa instalada
     * @property {string} state Estado de ubicación de la empresa instalada
     * @property {string} city Ciudad de ubicación de la empresa instalada
