@@ -58,6 +58,9 @@ router.post('/', [
       .isInt({min: 1}).withMessage('El id es inválido').bail()
       .custom(validateStateId),
 
+   body('hasDeliveries').optional()
+      .isBoolean().withMessage('El valor debe ser de tipo booleano'),
+
    validateFields
 ], create);
 
@@ -77,6 +80,9 @@ router.put('/:id', [
    body('stateId').optional()
       .isInt({min: 1}).withMessage('El id es inválido').bail()
       .custom(validateStateId),
+
+   body('hasDeliveries').optional()
+      .isBoolean().withMessage('El valor debe ser de tipo booleano'),
 
    validateFields
 ], findByIdAndUpdate);

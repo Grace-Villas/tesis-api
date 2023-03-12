@@ -27,6 +27,11 @@ module.exports = (sequelize, DataTypes) => {
         model: 'states',
         key: 'id'
       }
+    },
+    hasDeliveries: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: true
     }
   }, {
     sequelize,

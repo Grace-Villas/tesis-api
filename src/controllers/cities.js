@@ -26,9 +26,9 @@ const eLoad = [
  */
 const create = async (req = request, res = response) => {
    try {
-      const { stringName, stateId } = req.body;
+      const { stringName, stateId, hasDeliveries } = req.body;
 
-      const city = await City.create({ name: stringName, stateId });
+      const city = await City.create({ name: stringName, stateId, hasDeliveries });
 
       res.json(city);
    } catch (error) {
@@ -152,7 +152,7 @@ const findByIdAndDelete = async (req = request, res = response) => {
  */
 const findByIdAndUpdate = async (req = request, res = response) => {
    try {
-      const { stringName, stateId } = req.body;
+      const { stringName, stateId, hasDeliveries } = req.body;
    
       const { id } = req.params;
 
@@ -179,6 +179,10 @@ const findByIdAndUpdate = async (req = request, res = response) => {
 
       if (stateId) {
          city.stateId = stateId;
+      }
+
+      if (typeof hasDeliveries != 'undefined') {
+         city.hasDeliveries = hasDeliveries;
       }
 
       await city.save();
