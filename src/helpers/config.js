@@ -7,7 +7,7 @@ const { Config }  = require('../database/models');
  */
 class CompanyConfig {
 
-   private attributes = {}
+   attributes = {}
 
    constructor(attributes) {
       this.attributes = attributes;
@@ -29,7 +29,10 @@ class CompanyConfig {
 
       const configData = {
          ...objectData,
-         palletDat: Number(objectData.palletDay)
+         palletDay: {
+            ...objectData.palletDay,
+            value: Number(objectData.palletDay.value)
+         }
       }
 
       return new CompanyConfig(configData);
