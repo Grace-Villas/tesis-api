@@ -104,7 +104,6 @@ const validateJWT = async (req = request, res = response, next) => {
 
 }
 
-
 /**
  * Middleware de express para verificar que el
  * usuario tenga los permisos necesarios para ejecutar un endpoint
@@ -152,6 +151,93 @@ const validatePermission = (permission, method, adminNeeded = false) => {
    }
 }
 
+/**
+ * Middleware de express para validar el token generado
+ * para restaurar la contraseña de un usuario
+ */
+const validateResetJWT = async (req = request, res = response, next) => {
+   // Obteniendo token de los parámetros
+   const token = req.header('x-reset-token');
+
+   // Si el token no existe
+   if (!token) {
+      return res.status(401).json({
+         errors: [
+            {
+               value: token,
+               msg: 'No existe token en la petición.',
+               param: 'reset-token',
+               location: 'headers'
+            }
+         ]
+      });
+   }
+
+   try {
+      // Verificando el token y obteniendo el id del token
+      const { uuid, id, password } = jwt.verify(token, process.env.SECRETORPRIVATEKEY);
+      
+      const authUser = await User.findByPk(id);
+
+      // Verificar status del authUser
+      if (!authUser) {
+         return res.status(401).json({
+            errors: [
+               {
+                  value: token,
+                  msg: 'Token no válido - usuario no existe',
+                  param: 'reset-token',
+                  location: 'headers'
+               }
+            ]
+         });
+      }
+
+      if (authUser.uuid != uuid) {
+         return res.status(401).json({
+            errors: [
+               {
+                  value: token,
+                  msg: 'Token manipulado',
+                  param: 'reset-token',
+                  location: 'headers'
+               }
+            ]
+         });
+      }
+
+      if (authUser.password != password) {
+         return res.status(401).json({
+            errors: [
+               {
+                  value: token,
+                  msg: 'Token usado',
+                  param: 'reset-token',
+                  location: 'headers'
+               }
+            ]
+         });
+      }
+
+      req.userId = authUser.id;
+
+      next();
+   } catch (error) {
+      console.log(error);
+      res.status(401).json({
+         errors: [
+            {
+               value: token,
+               msg: 'Token no válido. Error de servidor',
+               param: 'reset-token',
+               location: 'headers'
+            }
+         ]
+      });
+   }
+
+}
+
 const validateSocketToken = (token = '') => {
    try {
       const { id } = jwt.verify(token, process.env.SECRETORPRIVATEKEY);
@@ -173,4 +259,5 @@ module.exports = {
    validateJWT,
    validatePermission,
    validateSocketToken,
+   validateResetJWT,
 }

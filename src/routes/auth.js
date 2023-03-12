@@ -2,7 +2,7 @@ const { Router } = require('express');
 const { body, param } = require('express-validator');
 
 const { validateFields } = require('../middlewares/validate-fields');
-const { validateJWT } = require('../middlewares/validate-jwt');
+const { validateJWT, validateResetJWT } = require('../middlewares/validate-jwt');
 const { validateUniqueEmail } = require('../middlewares/custom-express');
 
 const {
@@ -10,6 +10,8 @@ const {
    renew,
    findByJWTAndUpdate,
    findByJWTAndUpdatePassword,
+   findByEmailAndPasswordRecovery,
+   updatePasswordByToken,
 } = require('../controllers/users');
 
 
@@ -27,6 +29,7 @@ router.post('/login', [
    body('email')
       .not().isEmpty().withMessage('El email es obligatorio').bail()
       .isEmail().withMessage('El email es inválido').bail(),
+
    validateFields
 ], login);
 
@@ -35,6 +38,27 @@ router.get('/renew', [
    validateJWT
 ], renew);
 
+// Restaurar contraseña
+router.post('/password-recovery', [
+   body('email')
+      .not().isEmpty().withMessage('El email es obligatorio').bail()
+      .isEmail().withMessage('El email es inválido').bail(),
+
+   validateFields
+], findByEmailAndPasswordRecovery);
+
+// Resetear contraseña
+router.post('/password-reset', [
+   validateResetJWT,
+   
+   body('password')
+      .not().isEmpty().withMessage('La contraseña es obligatoria').bail()
+      .isLength({ min: 8 }).withMessage('La contraseña debe contener mínimo 8 caracteres'),
+
+   validateFields
+], updatePasswordByToken);
+
+// Actualizar contraseña
 router.put('/password', [
    validateJWT,
 
@@ -49,6 +73,7 @@ router.put('/password', [
    validateFields
 ], findByJWTAndUpdatePassword);
 
+// Actualizar atributos de un usuario autenticado
 router.put('/:id', [
    validateJWT,
 

@@ -6,6 +6,9 @@ const { Company, City, State, Country, User } = require('../database/models');
 
 // Helpers
 const { generatePassword } = require('../helpers/password-generator');
+const { capitalizeAllWords } = require('../helpers/format');
+const { companyRegistrationMailer } = require('../helpers/mailing');
+const CompanyConfig = require('../helpers/config');
 
 
 
@@ -85,6 +88,18 @@ const create = async (req = request, res = response) => {
             model: User,
             as: 'users'
          }
+      });
+
+      const config = await CompanyConfig.instance();
+
+      await companyRegistrationMailer({
+         from: `'${config.get('name')}' <${config.get('email')}>`,
+         to: stringEmail,
+         subject: `¡Bienvenido a ${config.get('name')}!`
+      }, {
+         companyName: config.get('name'),
+         clientName: capitalizeAllWords(company.name),
+         password
       });
 
       res.json(company);

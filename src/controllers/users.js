@@ -5,8 +5,13 @@ const bcryptjs = require('bcryptjs');
 // Modelos
 const { User, UserRole, Role, RolePermission, Permission, Company } = require('../database/models');
 
-const { generateJWT } = require('../helpers/jwt');
+// Helpers
+const { generateJWT, generateResetJWT } = require('../helpers/jwt');
 const { formatUser } = require('../helpers/users');
+const { userRegistrationMailer, passwordRecoveryMailer } = require('../helpers/mailing');
+const { getIpAdress } = require('../helpers/ip-adress');
+const { capitalizeAllWords } = require('../helpers/format');
+const CompanyConfig = require('../helpers/config');
 
 
 
@@ -30,14 +35,30 @@ const create = async (req = request, res = response) => {
       const hashPassword = bcryptjs.hashSync(password, salt);
 
       const data = {
-         firstName,
-         lastName,
+         firstName: firstName.toLocaleLowerCase(),
+         lastName: lastName.toLocaleLowerCase(),
          email: stringEmail,
          password: hashPassword,
          companyId: authUser.companyId
       }
 
-      const user = await User.create(data);
+      const [user, company] = await Promise.all([
+         User.create(data),
+         Company.findByPk(authUser.companyId)
+      ]);
+
+      const config = CompanyConfig.instance();
+
+      await userRegistrationMailer({
+         from: `'${config.get('name')}' <${config.get('email')}>`,
+         to: stringEmail,
+         subject: `¡Bienvenido a ${config.get('name')}!`
+      }, {
+         companyName: config.get('name'),
+         userName: capitalizeAllWords(user.fullName),
+         clientName: capitalizeAllWords(company.name),
+         password
+      });
 
       res.json(user);
    } catch (error) {
@@ -282,7 +303,7 @@ const login = async (req = request, res = response) => {
 
    try {
 
-      let user = await User.findOne({
+      const user = await User.findOne({
          where: { email: email.toLocaleLowerCase() },
          include: [
             {
@@ -344,8 +365,6 @@ const login = async (req = request, res = response) => {
          user: formatUser(user),
          token
       });
-
-
    } catch (error) {
       console.log(error);
       return res.status(500).json(error);
@@ -424,7 +443,7 @@ const findByJWTAndUpdate = async (req = request, res = response) => {
  * Actualizar contraseña de un usuario dado su jwt (JsonWebToken).
  * @param {string} x-token string. `headers`.
  * @param {string} oldPassword string. `body`.
- * @param {string} newPassword string, email. `body`.
+ * @param {string} newPassword string. `body`.
  */
 const findByJWTAndUpdatePassword = async (req = request, res = response) => {
    try {
@@ -465,6 +484,88 @@ const findByJWTAndUpdatePassword = async (req = request, res = response) => {
    }
 }
 
+/**
+ * Solicitar el cambio de contraseña de un usuario dado su email.
+ * @param {string} email string, email. `body`.
+ */
+const findByEmailAndPasswordRecovery = async (req = request, res = response) => {
+   try {
+      const { email } = req.body;
+
+      const user = await User.findOne({
+         where: { email: email.toLocaleLowerCase() },
+         include: {
+            model: Company,
+            as: 'company'
+         }
+      });
+
+      if (!user) {
+         return res.status(400).json({
+            errors: [
+               {
+                  value: email,
+                  msg: 'Email no existe o fue eliminado',
+                  param: 'email',
+                  location: 'body'
+               }
+            ]
+         });
+      }
+
+      // Generar JWT
+      const userJWT = await generateResetJWT(user.id, user.uuid, user.password, '1h');
+
+      const config = CompanyConfig.instance();
+
+      await passwordRecoveryMailer({
+         from: `'${config.get('name')}' <${config.get('email')}>`,
+         to: user.email,
+         subject: '¡Solicitud de cambio de contraseña!'
+      }, {
+         companyName: config.get('name'),
+         userName: capitalizeAllWords(user.fullName),
+         userEmail: user.email,
+         userUUID: user.uuid,
+         userIp: getIpAdress(req),
+         userJWT,
+         clientName: capitalizeAllWords(user.company?.name || config.get('name'))
+      });
+
+      res.json({sent: true});
+   } catch (error) {
+      console.log(error);
+      res.status(500).json(error);
+   }
+}
+
+/**
+ * Obtener id de usuario dado su token de cambio de contraseña.
+ * @param {string} x-reset-token string. `headers`.
+ */
+const updatePasswordByToken = async (req = request, res = response) => {
+   try {
+      const { password } = req.body;
+
+      const userId = req.userId;
+
+      const user = await User.findByPk(userId);
+
+      //Encriptado de contraseña
+      const salt = bcryptjs.genSaltSync();
+      const hashPassword = bcryptjs.hashSync(password, salt);
+
+      user.password = hashPassword;
+
+      await user.save();
+
+      res.json({userId});
+   } catch (error) {
+      console.log(error);
+      res.status(500).json(error);
+   }
+}
+
 
 
 // Exports
@@ -479,5 +580,7 @@ module.exports = {
    login,
    renew,
    findByJWTAndUpdate,
-   findByJWTAndUpdatePassword
+   findByJWTAndUpdatePassword,
+   findByEmailAndPasswordRecovery,
+   updatePasswordByToken,
 }

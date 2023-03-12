@@ -7,7 +7,8 @@
     "start": "node src/app.js",
     "dev": "nodemon src/app.js",
     "migrate": "sequelize db:migrate && sequelize db:seed:all",
-    "migrate:undo": "sequelize db:migrate:undo:all && sequelize db:seed:undo:all"
+    "migrate:undo": "sequelize db:migrate:undo:all && sequelize db:seed:undo:all",
+    "open": "code . && npm run dev"
   },
   "repository": {
     "type": "git",
@@ -20,14 +21,18 @@
   },
   "homepage": "https://github.com/mjp0997/tesis-api#readme",
   "dependencies": {
+    "axios": "1.3.4",
     "bcryptjs": "2.4.3",
+    "cheerio": "1.0.0-rc.12",
     "cors": "2.8.5",
     "dotenv": "16.0.3",
     "express": "4.18.2",
     "express-validator": "6.14.2",
+    "handlebars": "4.7.7",
     "jsonwebtoken": "8.5.1",
     "mariadb": "3.0.2",
     "mysql2": "2.3.3",
+    "nodemailer": "6.9.1",
     "sequelize": "6.26.0",
     "sequelize-cli": "6.5.2",
     "socket.io": "4.5.4",

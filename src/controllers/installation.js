@@ -2,9 +2,11 @@ const { request, response } = require('express');
 const bcryptjs = require('bcryptjs');
 
 // Modelos
-const { User, UserRole, Role, RolePermission, Permission } = require('../database/models');
+const { User, UserRole, Role, RolePermission, Permission, Config, Country, State, City } = require('../database/models');
 
 const { generateJWT } = require('../helpers/jwt');
+const { installationMailer } = require('../helpers/mailing');
+const { capitalizeAllWords } = require('../helpers/format');
 
 
 
@@ -12,16 +14,80 @@ const { generateJWT } = require('../helpers/jwt');
 
 /**
  * Crear un nuevo usuario con privilegios de administrador. 
- * @param {string} firstName string. `body`.
- * @param {string} lastName string. `body`.
+ * @param {string} companyName string. `body`.
+ * @param {string} companyEmail string, email. `body`.
+ * @param {string} companyContactEmail string, email. `body`.
+ * @param {string} companyPhone string. `body`.
+ * @param {number} palletDay number. `body`.
+ * @param {string} country string. `body`.
+ * @param {string} locale string. `body`.
+ * @param {string} phoneExtension string. `body`.
+ * @param {string} state string. `body`.
+ * @param {string} city string. `body`.
+ * @param {string} address string. `body`.
  * @param {string} email string, email. `body`.
  * @param {string} password string. `body`
  */
 const install = async (req = request, res = response) => {
    try {
-      const { firstName, lastName, stringEmail, password } = req.body;
+      const {
+         // Datos de configuración
+         companyName, companyEmail, companyContactEmail, companyPhone,
+         palletDay,
+         country, locale, phoneExtension, state, city, address,
+         // Cuenta principal
+         firstName, lastName, stringEmail, password
+      } = req.body;
 
-      //Encriptado de contraseña
+      const stringCountry = country.toLocaleLowerCase();
+      const stringState = state.toLocaleLowerCase();
+      const stringCity = city.toLocaleLowerCase();
+
+      // Config data
+      const config = [
+         { key: 'companyName', value: companyName },
+         { key: 'companyEmail', value: companyEmail.toLocaleLowerCase() },
+         { key: 'companyContactEmail', value: companyContactEmail.toLocaleLowerCase() },
+         { key: 'companyPhone', value: `${phoneExtension}${companyPhone}` },
+         { key: 'palletDay', value: palletDay },
+         { key: 'country', value: stringCountry },
+         { key: 'state', value: stringState },
+         { key: 'city', value: stringCity },
+         { key: 'address', value: address },
+      ];
+
+      // País, estado y ciudad data
+      const countryData = {
+         name: stringCountry,
+         locale,
+         phoneExtension,
+         states: [
+            {
+               name: stringState,
+               cities: [
+                  {
+                     name: stringCity
+                  }
+               ]
+            }
+         ]
+      }
+
+      await Promise.all([
+         ...config.map(c => Config.create(c)),
+         Country.create(countryData, {
+            include: {
+               model: State,
+               as: 'states',
+               include: {
+                  model: City,
+                  as: 'cities'
+               }
+            }
+         })
+      ]);
+
+      // Encriptado de contraseña
       const salt = bcryptjs.genSaltSync();
       const hashPassword = bcryptjs.hashSync(password, salt);
 
@@ -30,8 +96,8 @@ const install = async (req = request, res = response) => {
 
       // Data para crear el usuario admin
       const data = {
-         firstName,
-         lastName,
+         firstName: firstName.toLocaleLowerCase(),
+         lastName: lastName.toLocaleLowerCase(),
          email: stringEmail,
          password: hashPassword,
          userRoles: [{
@@ -67,6 +133,14 @@ const install = async (req = request, res = response) => {
                }
             }
          }
+      });
+
+      await installationMailer({
+         to: stringEmail,
+         subject: '¡Bienvenido a LogisticsChain!'
+      }, {
+         fullName: capitalizeAllWords(user.fullName),
+         password
       });
 
       // Generar JWT
