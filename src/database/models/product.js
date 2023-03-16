@@ -21,7 +21,13 @@ module.exports = (sequelize, DataTypes) => {
     },
     qtyPerPallet: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: false,
+      validate: {
+        min: {
+          args: 1,
+          msg: 'La cantidad por paleta debe ser mayor a 0'
+        }
+      }
     }
   }, {
     sequelize,
