@@ -290,18 +290,18 @@ const findByIdAndAllocateToUser = async (req = request, res = response) => {
 
       const user = req.authUser;
 
-      // if (userId === user.id) {
-      //    return res.status(400).json({
-      //       errors: [
-      //          {
-      //             value: userId,
-      //             msg: 'No puedes asignarte roles tu mismo',
-      //             param: 'userId',
-      //             location: 'body'
-      //          }
-      //       ]
-      //    });
-      // }
+      if (userId === user.id) {
+         return res.status(400).json({
+            errors: [
+               {
+                  value: userId,
+                  msg: 'No puedes asignarte roles tu mismo',
+                  param: 'userId',
+                  location: 'body'
+               }
+            ]
+         });
+      }
 
       const [userRole, created] = await UserRole.findOrCreate({
          where: { roleId, userId },
