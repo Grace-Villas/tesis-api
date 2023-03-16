@@ -1,4 +1,5 @@
 const { request, response } = require('express');
+const { Op } = require('sequelize');
 
 // Modelos
 const { Product } = require('../database/models');
@@ -8,18 +9,17 @@ const { Product } = require('../database/models');
 // Funciones del controlador
 
 /**
- * Crear un nuevo país.
+ * Crear un nuevo producto.
  * @param {string} name string. `body`.
- * @param {string} locale string. `body`.
- * @param {integer} phoneExtension integer. `body`.
+ * @param {integer} qtyPerPallet integer. `body`.
  */
 const create = async (req = request, res = response) => {
    try {
       const { name, qtyPerPallet } = req.body;
 
-      const country = await Product.create({ name, qtyPerPallet });
+      const product = await Product.create({ name, qtyPerPallet });
 
-      res.json(country);
+      res.json(product);
    } catch (error) {
       console.log(error);
       res.status(500).json(error);
@@ -27,16 +27,25 @@ const create = async (req = request, res = response) => {
 }
 
 /**
- * Listar países registrados.
+ * Listar productos registrados.
  * @param {integer} skip integer, cantidad de resultados a omitir (Paginación). `query`
  * @param {integer} limit integer, cantidad de resultados límite (Paginación). `query`
  */
 const findAll = async (req = request, res = response) => {
    try {
-      const { skip = 0, limit } = req.query;
+      const { name, skip = 0, limit } = req.query;
+
+      let where = {}
+
+      if (typeof name != 'undefined') {
+         where.name = {
+            [Op.substring]: name
+         }
+      }
 
       if (limit) {
          const { rows, count } = await Product.findAndCountAll({
+            where,
             offset: Number(skip),
             limit: Number(limit),
             order: [
@@ -52,13 +61,14 @@ const findAll = async (req = request, res = response) => {
             pages
          });
       } else {
-         const countries = await Product.findAll({
+         const products = await Product.findAll({
+            where,
             order: [
                ['name', 'ASC']
             ]
          });
    
-         res.json(countries);
+         res.json(products);
       }
    } catch (error) {
       console.log(error);
@@ -67,16 +77,16 @@ const findAll = async (req = request, res = response) => {
 }
 
 /**
- * Obtener un país dado su id.
+ * Obtener un producto dado su id.
  * @param {integer} id integer. `params`
  */
 const findById = async (req = request, res = response) => {
    try {
       const { id } = req.params;
 
-      const country = await Product.findByPk(id);
+      const product = await Product.findByPk(id);
 
-      if (!country) {
+      if (!product) {
          return res.status(400).json({
             errors: [
                {
@@ -89,7 +99,7 @@ const findById = async (req = request, res = response) => {
          });
       }
 
-      res.json(country);
+      res.json(product);
    } catch (error) {
       console.log(error);
       res.status(500).json(error);
@@ -97,16 +107,16 @@ const findById = async (req = request, res = response) => {
 }
 
 /**
- * Eliminar un país dado su id.
+ * Eliminar un producto dado su id.
  * @param {integer} id integer. `params`
  */
 const findByIdAndDelete = async (req = request, res = response) => {
    try {
       const { id } = req.params;
 
-      const country = await Product.findByPk(id);
+      const product = await Product.findByPk(id);
 
-      if (!country) {
+      if (!product) {
          return res.status(400).json({
             errors: [
                {
@@ -119,9 +129,9 @@ const findByIdAndDelete = async (req = request, res = response) => {
          });
       }
 
-      await country.destroy();
+      await product.destroy();
    
-      res.json(country);
+      res.json(product);
    } catch (error) {
       console.log(error);
       res.status(500).json(error);
@@ -129,21 +139,20 @@ const findByIdAndDelete = async (req = request, res = response) => {
 }
 
 /**
- * Actualizar información de un país dado su id.
+ * Actualizar información de un producto dado su id.
  * @param {integer} id integer. `params`
  * @param {string} name string. `body`. Opcional
- * @param {string} locale string. `body`. Opcional
- * @param {integer} phoneExtension integer. `body`. Opcional
+ * @param {integer} qtyPerPallet integer. `body`. Opcional
  */
 const findByIdAndUpdate = async (req = request, res = response) => {
    try {
-      const { stringName, locale, phoneExtension } = req.body;
+      const { name, qtyPerPallet } = req.body;
    
       const { id } = req.params;
 
-      const country = await Product.findByPk(id);
+      const product = await Product.findByPk(id);
 
-      if (!country) {
+      if (!product) {
          return res.status(400).json({
             errors: [
                {
@@ -156,21 +165,17 @@ const findByIdAndUpdate = async (req = request, res = response) => {
          });
       }
 
-      if (stringName) {
-         country.name = stringName;
+      if (name) {
+         product.name = name;
       }
 
-      if (locale) {
-         country.locale = locale;
+      if (qtyPerPallet) {
+         product.qtyPerPallet = qtyPerPallet;
       }
 
-      if (phoneExtension) {
-         country.phoneExtension = phoneExtension;
-      }
+      await product.save();
 
-      await country.save();
-
-      res.json(country);
+      res.json(product);
    } catch (error) {
       console.log(error);
       res.status(500).json(error);
@@ -178,16 +183,16 @@ const findByIdAndUpdate = async (req = request, res = response) => {
 }
 
 /**
- * Restaurar país eliminado dado su id.
+ * Restaurar producto eliminado dado su id.
  * @param {integer} id integer. `params`
  */
 const findByIdAndRestore = async (req = request, res = response) => {
    try {
       const { id } = req.params;
 
-      const country = await Product.findByPk(id, { paranoid: false });
+      const product = await Product.findByPk(id, { paranoid: false });
 
-      if (!country) {
+      if (!product) {
          return res.status(400).json({
             errors: [
                {
@@ -200,7 +205,7 @@ const findByIdAndRestore = async (req = request, res = response) => {
          });
       }
 
-      if (!country.deletedAt) {
+      if (!product.deletedAt) {
          return res.status(400).json({
             errors: [
                {
@@ -213,9 +218,9 @@ const findByIdAndRestore = async (req = request, res = response) => {
          });
       }
 
-      await country.restore();
+      await product.restore();
    
-      res.json(country);
+      res.json(product);
    } catch (error) {
       console.log(error);
       res.status(500).json(error);
