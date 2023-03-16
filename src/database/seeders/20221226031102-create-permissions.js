@@ -35,7 +35,7 @@ module.exports = {
         showName: 'países',
         isPublic: false
       }
-    ]
+    ];
 
     await queryInterface.bulkInsert('permissions', permissions.map(per => ({
       name: per.name,
