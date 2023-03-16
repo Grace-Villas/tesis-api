@@ -9,8 +9,9 @@ module.exports = (sequelize, DataTypes) => {
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
-    static associate(models) {
+    static associate({CompanyProduct}) {
       // define association here
+      this.hasMany(CompanyProduct, { foreignKey: 'product_id', as: 'companiesProduct' });
     }
   }
   Product.init({
@@ -22,6 +23,7 @@ module.exports = (sequelize, DataTypes) => {
     qtyPerPallet: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      field: 'quantity_per_pallet',
       validate: {
         min: {
           args: 1,

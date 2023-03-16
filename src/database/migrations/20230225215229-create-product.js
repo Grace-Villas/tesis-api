@@ -16,7 +16,8 @@ module.exports = {
       },
       qtyPerPallet: {
         type: Sequelize.INTEGER,
-        allowNull: false
+        allowNull: false,
+        field: 'quantity_per_pallet'
       },
       createdAt: {
         allowNull: false,

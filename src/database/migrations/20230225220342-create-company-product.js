@@ -12,6 +12,7 @@ module.exports = {
       companyId: {
         type: Sequelize.INTEGER,
         allowNull: false,
+        field: 'company_id',
         references: {
           model: 'companies',
           key: 'id'
@@ -20,6 +21,7 @@ module.exports = {
       productId: {
         type: Sequelize.INTEGER,
         allowNull: false,
+        field: 'product_id',
         references: {
           model: 'products',
           key: 'id'
