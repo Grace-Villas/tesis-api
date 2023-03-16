@@ -17,7 +17,17 @@ const create = async (req = request, res = response) => {
    try {
       const { name, qtyPerPallet } = req.body;
 
-      const product = await Product.create({ name, qtyPerPallet });
+      const [product, created] = await Product.findOrCreate({
+         where: { name },
+         defaults: {
+            qtyPerPallet
+         },
+         paranoid: false
+      });
+
+      if (!created && product.deletedAt) {
+         await product.restore();
+      }
 
       res.json(product);
    } catch (error) {
