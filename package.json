@@ -7,7 +7,7 @@
     "start": "node src/app.js",
     "dev": "nodemon src/app.js",
     "migrate": "sequelize db:migrate && sequelize db:seed:all",
-    "migrate:undo": "sequelize db:migrate:undo:all && sequelize db:seed:undo:all",
+    "migrate:undo": "sequelize db:seed:undo:all && sequelize db:migrate:undo:all",
     "open": "code . && npm run dev"
   },
   "repository": {

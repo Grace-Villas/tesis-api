@@ -47,6 +47,8 @@ module.exports = {
   },
 
   async down (queryInterface, Sequelize) {
+    await queryInterface.sequelize.query('SET foreign_key_checks = 0');
     await queryInterface.bulkDelete('permissions', null, {});
+    await queryInterface.sequelize.query('SET foreign_key_checks = 1');
   }
 };
