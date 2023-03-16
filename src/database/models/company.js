@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
       this.hasMany(User, { foreignKey: 'companyId', as: 'users' });
       this.hasMany(Role, { foreignKey: 'companyId', as: 'roles' });
       this.belongsTo(City, { foreignKey: 'cityId', as: 'city' });
-      this.hasMany(CompanyProduct, { foreignKey: 'company_id', as: 'companyProducts' });
+      this.hasMany(CompanyProduct, { foreignKey: 'companyId', as: 'companyProducts' });
     }
   }
   Company.init({
@@ -29,7 +29,6 @@ module.exports = (sequelize, DataTypes) => {
     cityId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      field: 'city_id',
       references: {
         model: 'cities',
         key: 'id'

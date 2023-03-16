@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate({CompanyProduct}) {
       // define association here
-      this.hasMany(CompanyProduct, { foreignKey: 'product_id', as: 'companiesProduct' });
+      this.hasMany(CompanyProduct, { foreignKey: 'productId', as: 'companiesProduct' });
     }
   }
   Product.init({
@@ -23,7 +23,6 @@ module.exports = (sequelize, DataTypes) => {
     qtyPerPallet: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      field: 'quantity_per_pallet',
       validate: {
         min: {
           args: 1,

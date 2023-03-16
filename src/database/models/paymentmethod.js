@@ -11,14 +11,13 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate({PaymentType}) {
       // define association here
-      this.belongsTo(PaymentType, { foreignKey: 'payment_type_id', as: 'paymentType' });
+      this.belongsTo(PaymentType, { foreignKey: 'paymentTypeId', as: 'paymentType' });
     }
   }
   PaymentMethod.init({
     paymentTypeId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      field: 'payment_type_id',
       references: {
         model: 'payment_types',
         key: 'id'
@@ -26,20 +25,16 @@ module.exports = (sequelize, DataTypes) => {
     },
     bankName: {
       type: DataTypes.STRING,
-      allowNull: false,
-      field: 'bank_name'
+      allowNull: false
     },
     holderName: {
-      type: DataTypes.STRING,
-      field: 'holder_name'
+      type: DataTypes.STRING
     },
     holderDni: {
-      type: DataTypes.STRING,
-      field: 'holder_dni'
+      type: DataTypes.STRING
     },
     accountNumber: {
-      type: DataTypes.STRING,
-      field: 'account_number'
+      type: DataTypes.STRING
     },
     email: {
       type: DataTypes.STRING

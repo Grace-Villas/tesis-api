@@ -11,15 +11,14 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate({Product, Company}) {
       // define association here
-      this.belongsTo(Product, { foreignKey: 'product_id', as: 'product' });
-      this.belongsTo(Company, { foreignKey: 'company_id', as: 'company' });
+      this.belongsTo(Product, { foreignKey: 'productId', as: 'product' });
+      this.belongsTo(Company, { foreignKey: 'companyId', as: 'company' });
     }
   }
   CompanyProduct.init({
     companyId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      field: 'company_id',
       references: {
         model: 'companies',
         key: 'id'
@@ -28,7 +27,6 @@ module.exports = (sequelize, DataTypes) => {
     productId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      field: 'product_id',
       references: {
         model: 'products',
         key: 'id'

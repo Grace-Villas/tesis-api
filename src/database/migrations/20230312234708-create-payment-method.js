@@ -12,7 +12,6 @@ module.exports = {
       paymentTypeId: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        field: 'payment_type_id',
         references: {
           model: 'payment_types',
           key: 'id'
@@ -20,20 +19,16 @@ module.exports = {
       },
       bankName: {
         type: Sequelize.STRING,
-        allowNull: false,
-        field: 'bank_name'
+        allowNull: false
       },
       holderName: {
-        type: Sequelize.STRING,
-        field: 'holder_name'
+        type: Sequelize.STRING
       },
       holderDni: {
-        type: Sequelize.STRING,
-        field: 'holder_dni'
+        type: Sequelize.STRING
       },
       accountNumber: {
-        type: Sequelize.STRING,
-        field: 'account_number'
+        type: Sequelize.STRING
       },
       email: {
         type: Sequelize.STRING
