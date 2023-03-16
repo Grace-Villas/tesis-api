@@ -1,7 +1,11 @@
 const { sequelize } = require('./models');
 
 const DBconnect = async () => {
-    await sequelize.authenticate();
+    await sequelize.authenticate({
+        dialectOptions: {
+            useUTC: false
+        }
+    });
     console.log('DB connected.');
 }
 
