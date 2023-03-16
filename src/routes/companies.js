@@ -25,7 +25,6 @@ const router = Router();
 // Listar compañías registradas
 router.get('/', [
    validateJWT,
-   validatePermission('users', 'list', true),
 
    query('limit', 'El límite de documentos debe ser un entero mayor a cero').optional().isInt({gt: 0}),
    query('skip', 'La cantidad de documentos a omitir debe ser un entero mayor a cero').optional().isInt({min: 0}),

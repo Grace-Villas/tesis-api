@@ -24,7 +24,6 @@ const router = Router();
 // Listar estados registrados
 router.get('/', [
    validateJWT,
-   validatePermission('states', 'list', true),
 
    query('limit', 'El límite de documentos debe ser un entero mayor a cero').optional().isInt({gt: 0}),
    query('skip', 'La cantidad de documentos a omitir debe ser un entero mayor a cero').optional().isInt({min: 0}),
