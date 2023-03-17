@@ -25,7 +25,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       validate: {
         min: {
-          args: 1,
+          args: [1],
           msg: 'La cantidad por paleta debe ser mayor a 0'
         }
       }

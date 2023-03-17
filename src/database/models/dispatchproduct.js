@@ -35,7 +35,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       validate: {
         min: {
-          args: 1,
+          args: [1],
           msg: 'La cantidad no puede ser menor a 1'
         }
       }
