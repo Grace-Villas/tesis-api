@@ -38,6 +38,7 @@ const create = async (req = request, res = response) => {
 
 /**
  * Listar productos registrados.
+ * @param {integer} name string, filtro de búsqueda. `query`
  * @param {integer} skip integer, cantidad de resultados a omitir (Paginación). `query`
  * @param {integer} limit integer, cantidad de resultados límite (Paginación). `query`
  */
