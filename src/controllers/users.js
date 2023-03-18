@@ -50,11 +50,11 @@ const create = async (req = request, res = response) => {
       const config = CompanyConfig.instance();
 
       await userRegistrationMailer({
-         from: `'${config.get('name')}' <${config.get('email')}>`,
+         from: `'${config.get('companyName').value}' <${config.get('companyEmail').value}>`,
          to: stringEmail,
-         subject: `¡Bienvenido a ${config.get('name')}!`
+         subject: `¡Bienvenido a ${config.get('companyName').value}!`
       }, {
-         companyName: config.get('name'),
+         companyName: config.get('companyName').value,
          userName: capitalizeAllWords(user.fullName),
          clientName: capitalizeAllWords(company.name),
          password
@@ -519,17 +519,17 @@ const findByEmailAndPasswordRecovery = async (req = request, res = response) => 
       const config = CompanyConfig.instance();
 
       await passwordRecoveryMailer({
-         from: `'${config.get('name')}' <${config.get('email')}>`,
+         from: `'${config.get('companyName').value}' <${config.get('companyEmail').value}>`,
          to: user.email,
          subject: '¡Solicitud de cambio de contraseña!'
       }, {
-         companyName: config.get('name'),
+         companyName: config.get('companyName'),
          userName: capitalizeAllWords(user.fullName),
          userEmail: user.email,
          userUUID: user.uuid,
          userIp: getIpAdress(req),
          userJWT,
-         clientName: capitalizeAllWords(user.company?.name || config.get('name'))
+         clientName: capitalizeAllWords(user.company?.name || config.get('companyName').value)
       });
 
       res.json({sent: true});
