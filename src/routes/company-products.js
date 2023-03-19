@@ -1,14 +1,12 @@
 const { Router } = require('express');
-const { body, query, param } = require('express-validator');
+const { query, param } = require('express-validator');
 
 const { validateFields } = require('../middlewares/validate-fields');
 const { validateJWT, validatePermission } = require('../middlewares/validate-jwt');
 
 const {
    findAll,
-   findById,
-   findByIdAndDelete,
-   findByIdAndRestore
+   findById
 } = require('../controllers/company-products');
 
 
@@ -38,30 +36,6 @@ router.get('/:id', [
       .isInt({min: 1}).withMessage('El id es inválido'),
    validateFields
 ], findById);
-
-// Restaurar producto eliminado
-router.put('/restore/:id', [
-   validateJWT,
-   validatePermission('products', 'delete', true),
-
-   param('id')
-      .not().isEmpty().withMessage('El id es obligatorio').bail()
-      .isInt({min: 1}).withMessage('El id es inválido'),
-
-   validateFields
-], findByIdAndRestore);
-
-// Eliminar un producto
-router.delete('/:id', [
-   validateJWT,
-   validatePermission('products', 'delete', true),
-
-   param('id')
-      .not().isEmpty().withMessage('El id es obligatorio').bail()
-      .isInt({min: 1}).withMessage('El id es inválido'),
-
-   validateFields
-], findByIdAndDelete);
 
 
 
