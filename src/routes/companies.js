@@ -3,9 +3,9 @@ const { body, query, param } = require('express-validator');
 
 const { validateFields } = require('../middlewares/validate-fields');
 const { validateJWT, validatePermission } = require('../middlewares/validate-jwt');
-const { validateCityId, validatePhone } = require('../middlewares/city-express');
+const { validateCityId } = require('../middlewares/city-express');
 const { validateCompanyId } = require('../middlewares/company-express');
-const { validateUniqueEmail } = require('../middlewares/custom-express');
+const { validateUniqueEmail, validatePhone } = require('../middlewares/custom-express');
 
 const {
    create,
@@ -73,7 +73,8 @@ router.post('/', [
 
    body('phone')
       .not().isEmpty().withMessage('El teléfono es obligatorio').bail()
-      .custom(validatePhone),
+      .custom((phone => validatePhone(phone, { locale: 'es-VE', phoneExtension: '+58' }))),
+      
    validateFields
 ], create);
 
@@ -111,7 +112,8 @@ router.put('/:id', [
       
    body('phone').optional()
       .not().isEmpty().withMessage('El teléfono es obligatorio').bail()
-      .custom(validatePhone),
+      .custom((phone => validatePhone(phone, { locale: 'es-VE', phoneExtension: '+58' }))),
+
    validateFields
 ], findByIdAndUpdate);
 

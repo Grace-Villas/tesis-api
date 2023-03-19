@@ -1,5 +1,3 @@
-const validator = require('validator');
-
 const { City, Country, State } = require('../database/models');
 
 
@@ -39,39 +37,8 @@ const validateCityId = async (cityId, { req }) => {
    }
 }
 
-/**
- * Método para verificar un número de teléfono. Para esto
- * es necesario que exista el atributo cityData en
- * `req.body.cityData`
- * @param {string} phone `string` Número de teléfono
- * @param {object} request `requerido` Objeto con la data de la petición
- * @param {import('express').Request} request.req
- * @returns {boolean} `bool`
- */
-const validatePhone = async (phone, { req }) => {
-   try {
-      const city = req.body.cityData;
-
-      if (!city) {
-         return true;
-      }
-
-      const { locale, phoneExtension } = city.state.country;
-
-      if (!validator.isMobilePhone(`${phoneExtension}${phone}`, locale, { strictMode: true })) {
-         throw new Error('El teléfono es inválido');
-      }
-
-      return true;
-   } catch (error) {
-      console.log(error);
-      throw new Error('El teléfono es inválido');
-   }
-}
-
 
 
 module.exports = {
-   validateCityId,
-   validatePhone
+   validateCityId
 }
