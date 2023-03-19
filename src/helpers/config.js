@@ -41,15 +41,15 @@ class CompanyConfig {
    /**
     * Tipado de la clase CompanyConfig
     * @typedef {Object} CompanyConfigType
-    * @property {string} name Nombre de la empresa instalada
-    * @property {string} email Correo de la empresa instalada
-    * @property {string} emailContact Correo de contacto de la empresa instalada
-    * @property {string} phone Teléfono de contacto de la empresa instalada
-    * @property {number} palletDay Costo por día de almacenamiento de la paleta no refrigerada de la empresa instalada
-    * @property {string} country País de ubicación de la empresa instalada
-    * @property {string} state Estado de ubicación de la empresa instalada
-    * @property {string} city Ciudad de ubicación de la empresa instalada
-    * @property {string} address Dirección de ubicación de la empresa instalada
+    * @property {{id:integer,value:string}} name Nombre de la empresa instalada
+    * @property {{id:integer,value:string}} email Correo de la empresa instalada
+    * @property {{id:integer,value:string}} emailContact Correo de contacto de la empresa instalada
+    * @property {{id:integer,value:string}} phone Teléfono de contacto de la empresa instalada
+    * @property {{id:integer,value:number}} palletDay Costo por día de almacenamiento de la paleta no refrigerada de la empresa instalada
+    * @property {{id:integer,value:string}} country País de ubicación de la empresa instalada
+    * @property {{id:integer,value:string}} state Estado de ubicación de la empresa instalada
+    * @property {{id:integer,value:string}} city Ciudad de ubicación de la empresa instalada
+    * @property {{id:integer,value:string}} address Dirección de ubicación de la empresa instalada
    */
 
    /**
