@@ -4,7 +4,7 @@
 module.exports = {
   async up (queryInterface, Sequelize) {
     const dispatchStatuses = [
-      { name: 'solicitado', number: 1 },
+      { name: 'pendiente', number: 1 },
       { name: 'agendado', number: 2 },
       { name: 'embarcado', number: 3 },
       { name: 'entregado', number: 4 },
