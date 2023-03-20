@@ -62,6 +62,9 @@ module.exports = (sequelize, DataTypes) => {
     date: {
       type: DataTypes.DATEONLY,
       allowNull: false
+    },
+    comments: {
+      type: DataTypes.STRING
     }
   }, {
     sequelize,
