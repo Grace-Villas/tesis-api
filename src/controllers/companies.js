@@ -36,7 +36,7 @@ const eLoad = [
  * Crear una nueva compañía.
  * @param {string} name string. `body`.
  * @param {string} rut string. `body`.
- * @param {integer} city integer. `body`.
+ * @param {integer} cityId integer. `body`.
  * @param {string} address string. `body`.
  * @param {string} phone string, sin el código de país. `body`.
  * @param {string} email string, email. `body`.
