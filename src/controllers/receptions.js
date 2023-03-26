@@ -2,7 +2,7 @@ const { request, response } = require('express');
 const { Op } = require('sequelize');
 
 // Modelos
-const { Reception, ReceptionProduct, CompanyProduct, Product, Company, User } = require('../database/models');
+const { Reception, ReceptionProduct, ReceptionProductBilling, CompanyProduct, Product, Company, User } = require('../database/models');
 
 
 
@@ -21,7 +21,11 @@ const eLoad = [
       as: 'products',
       include: {
          model: Product,
-         as: 'product'
+         as: 'product',
+         include: {
+            model: ReceptionProductBilling,
+            as: 'billings'
+         }
       }
    }
 ];
@@ -32,8 +36,9 @@ const eLoad = [
 
 /**
  * Crear un nuevo producto.
- * @param {string} name string. `body`.
- * @param {integer} qtyPerPallet integer. `body`.
+ * @param {integer} companyId integer. `body`.
+ * @param {string} date string. `body`.
+ * @param {Array<{productId:integer,qty:integer}>} products array. `body`
  */
 const create = async (req = request, res = response) => {
    try {
@@ -59,7 +64,6 @@ const create = async (req = request, res = response) => {
       }));
 
       await Promise.all(reception.products.map(p => {
-
          const qtyPerPallet = productsData.find(pd => pd.id === p.productId).qtyPerPallet;
 
          const companyProduct = toUpdateOrCreate.find(tuoc => tuoc?.companyId === companyId && tuoc?.productId === p.productId);
@@ -77,6 +81,19 @@ const create = async (req = request, res = response) => {
             where: { id: companyProduct.id }
          });
       }));
+
+      // billing por paleta
+      const billings = reception.products.map(p => {
+         const qtyPerPallet = productsData.find(pd => pd.id === p.productId).qtyPerPallet;
+
+         return [...Array(p.qty).keys()].map(_ => ({
+            receptionProductId: p.id,
+            dateIn: date,
+            qtyLeft: qtyPerPallet 
+         }));
+      });
+      
+      await Promise.all(billings.flat().map(data => ReceptionProductBilling.create(data)));
 
       res.json(reception);
    } catch (error) {
