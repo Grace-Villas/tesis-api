@@ -35,7 +35,7 @@ const eLoad = [
 // Funciones del controlador
 
 /**
- * Crear un nuevo producto.
+ * Crear un nuevo envío.
  * @param {integer} companyId integer. `body`.
  * @param {string} date string. `body`.
  * @param {Array<{productId:integer,qty:integer}>} products array. `body`
@@ -103,7 +103,7 @@ const create = async (req = request, res = response) => {
 }
 
 /**
- * Listar productos registrados.
+ * Listar envíos registrados.
  * @param {integer} date string, filtro de búsqueda. `query`
  * @param {integer} companyId string, filtro de búsqueda. `query`
  * @param {integer} userId string, filtro de búsqueda. `query`
@@ -164,7 +164,7 @@ const findAll = async (req = request, res = response) => {
 }
 
 /**
- * Obtener un producto dado su id.
+ * Obtener un envío dado su id.
  * @param {integer} id integer. `params`
  */
 const findById = async (req = request, res = response) => {
