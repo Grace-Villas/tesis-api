@@ -57,16 +57,16 @@ router.post('/', [
       .isDate().withMessage('La fecha debe tener un formato válido'),
 
    body('products')
-      .not().isEmpty().withMessage('El arreglo de envíos es obligatorio')
+      .not().isEmpty().withMessage('El arreglo de envíos es obligatorio').bail()
       .isArray({min: 1}).withMessage('Debe suministrar al menos 1 producto'),
 
    body('products.*.productId')
-      .not().isEmpty().withMessage('El id del producto es obligatorio')
+      .not().isEmpty().withMessage('El id del producto es obligatorio').bail()
       .isInt({min: 1}).withMessage('El id es inválido')
       .custom(validateProductId),
 
    body('products.*.qty')
-      .not().isEmpty().withMessage('La cantidad de paletas es obligatoria')
+      .not().isEmpty().withMessage('La cantidad de paletas es obligatoria').bail()
       .isInt({min: 1}).withMessage('La cantidad de paletas deben ser un entero mayor a 0'),
 
    validateFields
