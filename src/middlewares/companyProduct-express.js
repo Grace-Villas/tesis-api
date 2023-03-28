@@ -16,12 +16,12 @@ const validateStock = async ({productId, qty}) => {
 
       if (!product) {
          message = 'El producto no se encuentra en la base de datos';
-         throw new Error('');
+         throw new Error(message);
       }
 
       if (product.stock < qty) {
          message = 'El stock es insuficiente';
-         throw new Error('');
+         throw new Error(message);
       }
 
       return true;

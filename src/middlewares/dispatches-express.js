@@ -22,7 +22,7 @@ const validateAndHasStatus = async (dispatchId, { status, errorMessage }) => {
 
       if (!dispatch) {
          message = `El id: ${dispatchId} no se encuentra en la base de datos`;
-         throw new Error('');
+         throw new Error(message);
       }
 
       if (dispatch.status.name != status) {
@@ -32,7 +32,7 @@ const validateAndHasStatus = async (dispatchId, { status, errorMessage }) => {
             message = `El status del despacho es inválido. Status actual: '${dispatch.status.name}', status necesario: '${status}'`;
          }
 
-         throw new Error('');
+         throw new Error(message);
       }
 
       return true;
