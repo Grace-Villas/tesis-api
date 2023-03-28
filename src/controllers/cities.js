@@ -23,6 +23,7 @@ const eLoad = [
  * Crear una nueva ciudad.
  * @param {string} name string. `body`.
  * @param {string} stateId integer. `body`.
+ * @param {string} hasDeliveries boolean. `body`.
  */
 const create = async (req = request, res = response) => {
    try {
