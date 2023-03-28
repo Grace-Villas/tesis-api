@@ -1,5 +1,4 @@
 const { request, response } = require('express');
-const { Op } = require('sequelize');
 
 // Modelos
 const { Dispatch, DispatchStatus, Company, User, DispatchProduct, Product, Batch, Receiver, CompanyProduct } = require('../database/models');
