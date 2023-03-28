@@ -90,7 +90,7 @@ router.post('/', [
 // Marcar despacho como entregado
 router.put('/:id', [
    validateJWT,
-   validatePermission('dispatches', 'update', true),
+   validatePermission('dispatches', 'edit', true),
 
    param('id')
       .not().isEmpty().withMessage('El id es obligatorio').bail()
