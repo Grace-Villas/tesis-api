@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
       this.belongsTo(Company, { foreignKey: 'companyId', as: 'company' });
       this.hasMany(UserRole, { foreignKey: 'userId', as: 'userRoles' });
       this.hasMany(Reception, { foreignKey: 'userId', as: 'consignedReceptions' });
-      this.hasMany(Batch, { foreignKey: 'batchId', as: 'batches' });
+      this.hasMany(Batch, { foreignKey: 'userId', as: 'batches' });
       this.hasMany(Dispatch, { foreignKey: 'userId', as: 'consignedDispatches' });
     }
     
