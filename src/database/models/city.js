@@ -32,6 +32,15 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: true
+    },
+    deliveryPrice: {
+      type: DataTypes.DECIMAL(10,2),
+      validate: {
+        min: {
+          args: [0],
+          msg: 'El precio de despacho debe ser mayor o igual a 0'
+        }
+      }
     }
   }, {
     sequelize,
