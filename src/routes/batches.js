@@ -3,9 +3,6 @@ const { body, query, param } = require('express-validator');
 
 const { validateFields } = require('../middlewares/validate-fields');
 const { validateJWT, validatePermission } = require('../middlewares/validate-jwt');
-const { validateStateId } = require('../middlewares/state-express');
-const { validateUniqueName } = require('../middlewares/custom-express');
-const { validateDeliveryPriceNeeded } = require('../middlewares/city-express');
 const { validateAdminId } = require('../middlewares/user-express');
 const { validateBatchAndHasStatus } = require('../middlewares/batches-express');
 
