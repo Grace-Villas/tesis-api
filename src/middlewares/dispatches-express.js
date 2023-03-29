@@ -9,7 +9,7 @@ const { Dispatch, DispatchStatus } = require('../database/models');
  * @param {{status:string,errorMessage:string|undefined}} param1 Objeto de configuración
  * @returns 
  */
-const validateAndHasStatus = async (dispatchId, { status, errorMessage }) => {
+const validateDispatchAndHasStatus = async (dispatchId, { status, errorMessage }) => {
    let message = '';
    try {
       const dispatch = await Dispatch.findByPk(dispatchId, {
@@ -48,7 +48,7 @@ const validateAndHasStatus = async (dispatchId, { status, errorMessage }) => {
  * @param {{status:Array<string>,errorMessage:string|undefined}} param1 Objeto de configuración
  * @returns 
  */
-const validateAndDoesntHasStatus = async (dispatchId, { statuses = [], errorMessage }) => {
+const validateDispatchAndDoesntHasStatus = async (dispatchId, { statuses = [], errorMessage }) => {
    let message = '';
    try {
       const dispatch = await Dispatch.findByPk(dispatchId, {
@@ -83,6 +83,6 @@ const validateAndDoesntHasStatus = async (dispatchId, { statuses = [], errorMess
 
 
 module.exports = {
-   validateAndHasStatus,
-   validateAndDoesntHasStatus
+   validateDispatchAndHasStatus,
+   validateDispatchAndDoesntHasStatus
 }
