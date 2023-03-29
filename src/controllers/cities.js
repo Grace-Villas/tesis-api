@@ -145,7 +145,6 @@ const findByIdAndDelete = async (req = request, res = response) => {
    }
 }
 
-// 
 /**
  * Actualizar información de una ciudad dado su id.
  * @param {integer} id integer. `params`
