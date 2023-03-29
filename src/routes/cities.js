@@ -5,6 +5,7 @@ const { validateFields } = require('../middlewares/validate-fields');
 const { validateJWT, validatePermission } = require('../middlewares/validate-jwt');
 const { validateStateId } = require('../middlewares/state-express');
 const { validateUniqueName } = require('../middlewares/custom-express');
+const { validateDeliveryPriceNeeded } = require('../middlewares/city-express');
 
 const {
    create,
@@ -59,6 +60,11 @@ router.post('/', [
 
    body('hasDeliveries').optional()
       .isBoolean().withMessage('El valor debe ser de tipo booleano'),
+      
+   body('deliveryPrice')
+      .if((_, { req }) => req.body.hasDeliveries)
+      .not().isEmpty().withMessage('El precio de despacho es obligatorio').bail()
+      .isFloat({gt: 0}).withMessage('El precio de despacho debe ser un decimal mayor a 0'),
 
    validateFields
 ], create);
@@ -82,6 +88,11 @@ router.put('/:id', [
 
    body('hasDeliveries').optional()
       .isBoolean().withMessage('El valor debe ser de tipo booleano'),
+      
+   body('deliveryPrice')
+      .if(validateDeliveryPriceNeeded)
+      .not().isEmpty().withMessage('El precio de despacho es obligatorio').bail()
+      .isFloat({gt: 0}).withMessage('El precio de despacho debe ser un decimal mayor a 0'),
 
    validateFields
 ], findByIdAndUpdate);

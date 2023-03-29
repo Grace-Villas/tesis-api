@@ -23,13 +23,14 @@ const eLoad = [
  * Crear una nueva ciudad.
  * @param {string} name string. `body`.
  * @param {string} stateId integer. `body`.
- * @param {string} hasDeliveries boolean. `body`.
+ * @param {boolean} hasDeliveries boolean. `body`.
+ * @param {number} deliveryPrice number. `body`.
  */
 const create = async (req = request, res = response) => {
    try {
-      const { stringName, stateId, hasDeliveries } = req.body;
+      const { stringName, stateId, hasDeliveries, deliveryPrice } = req.body;
 
-      const city = await City.create({ name: stringName, stateId, hasDeliveries });
+      const city = await City.create({ name: stringName, stateId, hasDeliveries, deliveryPrice });
 
       res.json(city);
    } catch (error) {
@@ -149,11 +150,13 @@ const findByIdAndDelete = async (req = request, res = response) => {
  * Actualizar información de una ciudad dado su id.
  * @param {integer} id integer. `params`
  * @param {string} name string. `body`. Opcional
- * @param {string} stateId integer. `body`. Opcional
+ * @param {integer} stateId integer. `body`. Opcional
+ * @param {boolean} hasDeliveries boolean. `body`. Opcional
+ * @param {number} deliveryPrice number. `body`. Opcional
  */
 const findByIdAndUpdate = async (req = request, res = response) => {
    try {
-      const { stringName, stateId, hasDeliveries } = req.body;
+      const { stringName, stateId, hasDeliveries, deliveryPrice } = req.body;
    
       const { id } = req.params;
 
@@ -184,6 +187,10 @@ const findByIdAndUpdate = async (req = request, res = response) => {
 
       if (typeof hasDeliveries != 'undefined') {
          city.hasDeliveries = hasDeliveries;
+      }
+
+      if (typeof deliveryPrice != 'undefined') {
+         city.deliveryPrice = deliveryPrice;
       }
 
       await city.save();

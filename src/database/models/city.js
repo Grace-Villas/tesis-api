@@ -35,6 +35,11 @@ module.exports = (sequelize, DataTypes) => {
     },
     deliveryPrice: {
       type: DataTypes.DECIMAL(10,2),
+      get() {
+        const value = this.getDataValue('deliveryPrice');
+
+        return Number(value) ? Number(value) : value;
+      },
       validate: {
         min: {
           args: [0],

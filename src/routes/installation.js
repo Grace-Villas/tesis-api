@@ -69,7 +69,11 @@ router.post('/', [
       .not().isEmpty().withMessage('El nombre de la empresa es obligatorio').bail()
       .isString().withMessage('El nombre debe ser un string'),
 
+   body('deliveryPrice')
+      .not().isEmpty().withMessage('El precio de despacho es obligatorio').bail()
+      .isFloat({gt: 0}).withMessage('El precio de despacho debe ser un decimal mayor a 0'),
 
+      
    
    // Cuenta principal
    body('firstName')
