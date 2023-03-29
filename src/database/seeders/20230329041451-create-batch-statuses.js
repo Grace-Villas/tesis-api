@@ -5,7 +5,7 @@ module.exports = {
   async up (queryInterface, Sequelize) {
     const batchStatuses = [
       { name: 'pendiente', number: 1 },
-      { name: 'en transito', number: 2 },
+      { name: 'en tránsito', number: 2 },
       { name: 'finalizado', number: 3 }
     ];
 
