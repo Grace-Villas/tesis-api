@@ -272,6 +272,8 @@ const findByIdAndDeliver = async (req = request, res = response) => {
          });
       }
 
+      // TODO: actualizar billing de producto (reception_product_billings)
+
       const status = await DispatchStatus.findOne({
          where: { name: 'entregado' }
       });
