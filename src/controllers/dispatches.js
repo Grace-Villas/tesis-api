@@ -104,7 +104,7 @@ const create = async (req = request, res = response) => {
 
 /**
  * Listar despachos registrados.
- * @param {integer} date string, filtro de búsqueda. `query`
+ * @param {string} date string, filtro de búsqueda. `query`
  * @param {integer} companyId string, filtro de búsqueda. `query`
  * @param {integer} userId string, filtro de búsqueda. `query`
  * @param {integer} statusId string, filtro de búsqueda. `query`
