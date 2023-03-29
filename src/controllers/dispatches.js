@@ -1,7 +1,7 @@
 const { request, response } = require('express');
 
 // Modelos
-const { Dispatch, DispatchStatus, Company, User, DispatchProduct, Product, Batch, Receiver, CompanyProduct } = require('../database/models');
+const { Dispatch, DispatchStatus, Company, User, DispatchProduct, Product, Batch, BatchStatus, Receiver, CompanyProduct } = require('../database/models');
 
 
 
@@ -25,7 +25,11 @@ const eLoad = [
    },
    {
       model: Batch,
-      as: 'batch'
+      as: 'batch',
+      include: {
+         model: BatchStatus,
+         as: 'status'
+      }
    },
    {
       model: DispatchProduct,
