@@ -1,5 +1,4 @@
 const { Dispatch, DispatchStatus } = require('../database/models');
-// TODO: crear middleware que valide que el despacho no tenga los status pasados por parámetros
 
 
 
