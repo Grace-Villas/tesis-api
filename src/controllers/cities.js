@@ -22,7 +22,7 @@ const eLoad = [
 /**
  * Crear una nueva ciudad.
  * @param {string} name string. `body`.
- * @param {string} stateId integer. `body`.
+ * @param {string} stateId string. `body`.
  * @param {boolean} hasDeliveries boolean. `body`.
  * @param {number} deliveryPrice number. `body`.
  */
