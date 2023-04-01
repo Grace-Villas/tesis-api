@@ -1,7 +1,13 @@
 const { request, response } = require('express');
 
 // Modelos
-const { Dispatch, DispatchStatus, Company, User, DispatchProduct, Product, Batch, BatchStatus, Receiver, CompanyProduct } = require('../database/models');
+const {
+   Dispatch, DispatchStatus, Company, User, DispatchProduct, Product, Batch, BatchStatus, Receiver, CompanyProduct
+} = require('../database/models');
+
+// Helpers
+const { updateDispatchBillings } = require('../helpers/billing');
+const { updateBatchIfFullyDelivered } = require('../helpers/batches');
 
 
 
@@ -276,7 +282,8 @@ const findByIdAndDeliver = async (req = request, res = response) => {
          });
       }
 
-      // TODO: actualizar billing de producto (reception_product_billings)
+      // Actualizar billings
+      await updateDispatchBillings(dispatch.products);
 
       const status = await DispatchStatus.findOne({
          where: { name: 'entregado' }
@@ -285,6 +292,9 @@ const findByIdAndDeliver = async (req = request, res = response) => {
       dispatch.statusId = status.id;
 
       await dispatch.save();
+
+      // Verificar que si no existen más despachos en el lote el mismo se marca como finalizado
+      await updateBatchIfFullyDelivered();
 
       await dispatch.reload();
    
@@ -346,6 +356,75 @@ const findByIdAndDeny = async (req = request, res = response) => {
    }
 }
 
+/**
+ * Asignar despacho a lote dado su id.
+ * @param {integer} id integer. `params`
+ * @param {integer} batchId integer. `body`
+ */
+const findByIdAndAllocateBatch = async (req = request, res = response) => {
+   try {
+      const { id } = req.params;
+
+      const { batchId } = req.body;
+
+      const [dispatch, status] = await Promise.all([
+         Dispatch.findByPk(id, {
+            include: eLoad
+         }),
+         DispatchStatus.findOne({
+            where: { name: 'agendado' }
+         })
+      ]);
+
+      dispatch.statusId = status.id
+      
+      dispatch.batchId = batchId;
+
+      await dispatch.save();
+
+      await dispatch.reload();
+   
+      res.json(dispatch);
+   } catch (error) {
+      console.log(error);
+      res.status(500).json(error);
+   }
+}
+
+/**
+ * Retirar despacho de lote dado su id.
+ * @param {integer} id integer. `params`
+ * @param {integer} batchId integer. `body`
+ */
+const findByIdAndDellocateBatch = async (req = request, res = response) => {
+   try {
+      const { id } = req.params;
+
+      const [dispatch, status] = await Promise.all([
+         Dispatch.findByPk(id, {
+            include: eLoad
+         }),
+         DispatchStatus.findOne({
+            where: { name: 'pendiente' }
+         })
+      ]);
+
+      dispatch.statusId = status.id
+      
+      dispatch.batchId = null;
+
+      await dispatch.save();
+
+      await dispatch.reload();
+   
+      res.json(dispatch);
+   } catch (error) {
+      console.log(error);
+      res.status(500).json(error);
+   }
+}
+
+
 
 // Exports
 module.exports = {
@@ -354,5 +433,7 @@ module.exports = {
    findById,
    findByIdAndCancel,
    findByIdAndDeliver,
-   findByIdAndDeny
+   findByIdAndDeny,
+   findByIdAndAllocateBatch,
+   findByIdAndDellocateBatch
 }

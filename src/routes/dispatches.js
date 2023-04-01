@@ -6,7 +6,8 @@ const { validateJWT, validatePermission } = require('../middlewares/validate-jwt
 const { validateCompanyId } = require('../middlewares/company-express');
 const { validateStock } = require('../middlewares/companyProduct-express');
 const { validateReceiverId } = require('../middlewares/receiver-express');
-const { validateAndHasStatus, validateAndDoesntHasStatus } = require('../middlewares/dispatches-express');
+const { validateDispatchAndHasStatus, validateDispatchAndDoesntHasStatus } = require('../middlewares/dispatches-express');
+const { validateBatchAndHasStatus } = require('../middlewares/batches-express');
 
 const {
    create,
@@ -14,7 +15,9 @@ const {
    findById,
    findByIdAndCancel,
    findByIdAndDeliver,
-   findByIdAndDeny
+   findByIdAndDeny,
+   findByIdAndAllocateBatch,
+   findByIdAndDellocateBatch
 } = require('../controllers/dispatches');
 
 
@@ -87,6 +90,43 @@ router.post('/', [
    validateFields
 ], create);
 
+// Asignar despacho a lote
+router.put('/allocate/:id', [
+   validateJWT,
+   validatePermission('batches', 'edit'),
+
+   param('id')
+      .not().isEmpty().withMessage('El id es obligatorio').bail()
+      .isInt({min: 1}).withMessage('El id es inválido').bail()
+      .custom(dispatchId => validateDispatchAndHasStatus(dispatchId, {
+         status: 'pendiente', errorMessage: 'El despacho debe estar pendiente para poder ser asignado a un lote'
+      })),
+
+   body('batchId')
+      .not().isEmpty().withMessage('El id es obligatorio').bail()
+      .isInt({min: 1}).withMessage('El id es inválido').bail()
+      .custom(batchId => validateBatchAndHasStatus(batchId, {
+         status: 'pendiente', errorMessage: 'El lote debe estar pendiente para poder asignarle un despacho'
+      })),
+
+   validateFields
+], findByIdAndAllocateBatch);
+
+// Remover despacho de lote
+router.put('/dellocate/:id', [
+   validateJWT,
+   validatePermission('batches', 'edit'),
+
+   param('id')
+      .not().isEmpty().withMessage('El id es obligatorio').bail()
+      .isInt({min: 1}).withMessage('El id es inválido').bail()
+      .custom(dispatchId => validateDispatchAndHasStatus(dispatchId, {
+         status: 'agendado', errorMessage: 'El despacho debe estar agendado para poder ser retirado de un lote'
+      })),
+
+   validateFields
+], findByIdAndDellocateBatch);
+
 // Marcar despacho como entregado
 router.put('/:id', [
    validateJWT,
@@ -94,8 +134,8 @@ router.put('/:id', [
 
    param('id')
       .not().isEmpty().withMessage('El id es obligatorio').bail()
-      .isInt({min: 1}).withMessage('El id es inválido')
-      .custom(dispahtchId => validateAndHasStatus(dispahtchId, {
+      .isInt({min: 1}).withMessage('El id es inválido').bail()
+      .custom(dispatchId => validateDispatchAndHasStatus(dispatchId, {
          status: 'embarcado', errorMessage: 'El despacho debe estar embarcado para poder ser marcado como entregado'
       })),
       
@@ -109,8 +149,8 @@ router.delete('/deny/:id', [
 
    param('id')
       .not().isEmpty().withMessage('El id es obligatorio').bail()
-      .isInt({min: 1}).withMessage('El id es inválido')
-      .custom(dispahtchId => validateAndDoesntHasStatus(dispahtchId, {
+      .isInt({min: 1}).withMessage('El id es inválido').bail()
+      .custom(dispatchId => validateDispatchAndDoesntHasStatus(dispatchId, {
          statuses: ['entregado', 'cancelado', 'denegado'], errorMessage: 'El despacho no puede ser denegado'
       })),
 
@@ -128,8 +168,8 @@ router.delete('/:id', [
 
    param('id')
       .not().isEmpty().withMessage('El id es obligatorio').bail()
-      .isInt({min: 1}).withMessage('El id es inválido')
-      .custom(dispahtchId => validateAndHasStatus(dispahtchId, {
+      .isInt({min: 1}).withMessage('El id es inválido').bail()
+      .custom(dispatchId => validateDispatchAndHasStatus(dispatchId, {
          status: 'pendiente', errorMessage: 'El despacho ya fue agendado, contacte a la empresa'
       })),
       
