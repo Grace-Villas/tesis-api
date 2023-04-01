@@ -67,7 +67,7 @@ const create = async (req = request, res = response) => {
          where: { name: 'pendiente' }
       });
 
-      const batch = await Batch.create({ userId, date, status: batchStatus.id });
+      const batch = await Batch.create({ userId, date, statusId: batchStatus.id });
 
       const dispatchStatus = await DispatchStatus.findOne({
          where: { name: 'agendado' }

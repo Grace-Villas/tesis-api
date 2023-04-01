@@ -5,6 +5,7 @@ const { validateFields } = require('../middlewares/validate-fields');
 const { validateJWT, validatePermission } = require('../middlewares/validate-jwt');
 const { validateAdminId } = require('../middlewares/user-express');
 const { validateBatchAndHasStatus } = require('../middlewares/batches-express');
+const { validateDispatchAndHasStatus } = require('../middlewares/dispatches-express');
 
 const {
    create,
