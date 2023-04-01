@@ -24,8 +24,7 @@ module.exports = (sequelize, DataTypes) => {
       }
     },
     bankName: {
-      type: DataTypes.STRING,
-      allowNull: false
+      type: DataTypes.STRING
     },
     holderName: {
       type: DataTypes.STRING
