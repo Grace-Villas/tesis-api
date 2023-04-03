@@ -3,9 +3,7 @@ const { body, query, param } = require('express-validator');
 
 const { validateFields } = require('../middlewares/validate-fields');
 const { validateJWT, validatePermission } = require('../middlewares/validate-jwt');
-const { validateStateId } = require('../middlewares/state-express');
-const { validateUniqueName, validatePhone, validateRut } = require('../middlewares/custom-express');
-const { validateDeliveryPriceNeeded } = require('../middlewares/city-express');
+const { validatePhone, validateRut } = require('../middlewares/custom-express');
 const { validateHasPaymentType, isPaymentAttributeRequired, validatePaymentTypeId } = require('../middlewares/payment-types');
 const { validatePaymentMethodId } = require('../middlewares/payment-methods');
 
