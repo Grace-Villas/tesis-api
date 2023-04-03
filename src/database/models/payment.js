@@ -62,6 +62,9 @@ module.exports = (sequelize, DataTypes) => {
           msg: 'El correo es inválido'
         }
       }
+    },
+    comments: {
+      type: DataTypes.STRING
     }
   }, {
     sequelize,
