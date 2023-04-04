@@ -30,7 +30,7 @@ const updateBatchIfFullyDelivered = async (batchId) => {
       await Batch.update({
          statusId: deliveredStatus.id
       }, {
-         where: { batchId } 
+         where: { id: batchId } 
       });
    }
 }
