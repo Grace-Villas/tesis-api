@@ -43,7 +43,12 @@ module.exports = (sequelize, DataTypes) => {
     },
     amount: {
       type: DataTypes.DECIMAL(10, 2),
-      allowNull: false
+      allowNull: false,
+      get() {
+        const value = this.getDataValue('amount');
+
+        return Number(value) ? Number(value) : value;
+      }
     },
     date: {
       type: DataTypes.DATEONLY,
