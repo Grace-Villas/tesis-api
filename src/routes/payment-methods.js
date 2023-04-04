@@ -5,7 +5,7 @@ const { validateFields } = require('../middlewares/validate-fields');
 const { validateJWT, validatePermission } = require('../middlewares/validate-jwt');
 const { validatePhone, validateRut } = require('../middlewares/custom-express');
 const { validateHasPaymentType, isPaymentAttributeRequired, validatePaymentTypeId } = require('../middlewares/payment-types');
-const { validatePaymentMethodId } = require('../middlewares/payment-methods');
+const { validatePaymentMethodId } = require('../middlewares/payment-methods-express');
 
 const {
    create,
