@@ -35,7 +35,7 @@ const validatePaymentTypeId = async (paymentTypeId, { req }) => {
  * @param {import('express').Request} request.req
  * @returns 
  */
-const validateHasPaymentType = async (_, { req }) => {
+const validateHasPaymentType = (_, { req }) => {
    try {
       if (!req.paymentType) {
          throw new Error('El tipo de pago es obligatorio');
