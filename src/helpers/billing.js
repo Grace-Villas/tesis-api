@@ -1,6 +1,15 @@
 const { Op } = require('sequelize');
+const moment = require('moment/moment');
 
-const { DispatchProduct, ReceptionProduct, ReceptionProductBilling } = require('../database/models');
+// Models
+const {
+   ReceptionProductBilling, ReceptionProduct, Reception, Product,
+   Dispatch, DispatchProduct, DispatchStatus, Receiver, City,
+   Payment, PaymentStatus
+} = require('../database/models');
+
+// Helpers
+const CompanyConfig = require('./config');
 
 
 
@@ -87,8 +96,185 @@ const updateDispatchBillings = async (dispatchProducts) => {
    }));
 }
 
+/**
+ * Función para obtener la información general del billing de 
+ * una empresa dado su id
+ * @async
+ * @param {number} companyId Id de la compañía
+ * @param {{month:string,year:string}} config Datos de calendario
+ * @returns {Promise<{
+ *    currentMonthDebt:number,
+ *    totalDebt:number,
+ *    positiveBalance:number,
+ *    billingDetails:{
+ *       dispatches:array<Dispatch>,
+ *       receptionBillings:array<ReceptionProductBilling>
+ *    }
+ * }>}
+ */
+const getBillingData = async (companyId, { month = moment().format('MM'), year = moment().format('YYYY') } = {}) => {
+   const [config, receptionBillings, dispatches, payments] = await Promise.all([
+      CompanyConfig.instance(),
+      ReceptionProductBilling.findAll({
+         include: {
+            model: ReceptionProduct,
+            as: 'receptionProduct',
+            include: [
+               {
+                  model: Reception,
+                  as: 'reception'
+               },
+               {
+                  model: Product,
+                  as: 'product'
+               }
+            ]
+         },
+         where: { '$receptionProduct.reception.companyId$': companyId }
+      }),
+      Dispatch.findAll({
+         include: [
+            {
+               model: DispatchStatus,
+               as: 'status'
+            },
+            {
+               model: Receiver,
+               as: 'receiver',
+               include: {
+                  model: City,
+                  as: 'city'
+               }
+            }
+         ],
+         where: {
+            companyId: companyId,
+            '$status.name$': 'entregado'
+         }
+      }),
+      Payment.findAll({
+         include: {
+            model: PaymentStatus,
+            as: 'status'
+         },
+         where: {
+            companyId: companyId,
+            '$status.name$': 'aprobado'
+         }
+      })
+   ]);
+
+   const { value: palletDay } = config.get('palletDay');
+
+   // Acumulación total de receptionBillings
+   const today = moment();
+
+   const billingsTotal = receptionBillings.reduce((acc, current) => {
+      let outDate = today;
+
+      if (current.dateOut) {
+         outDate = moment(current.dateOut);
+      }
+
+      return acc + (outDate.diff(current.dateIn, 'days') * palletDay);
+   }, 0);
+
+   // Suma de los precios de despacho
+   const dispatchesTotal = dispatches.reduce((acc, current) => {
+      return acc + current.receiver.city.deliveryPrice;
+   }, 0);
+
+   // Suma de los montos de pago
+   const paymentsTotal = payments.reduce((acc, current) => {
+      return acc + current.amount;
+   }, 0);
+
+   // ReceptionBillings + despachos - pagos = montoDeudaAcumulada
+   const totalDebt = billingsTotal + dispatchesTotal - paymentsTotal;
+
+   // Saldo a favor
+   const positiveBalance = totalDebt < 0 ? (totalDebt * -1) : 0
+
+   // Deuda del mes solicitado
+   const specifiedDate = moment(`${year}-${month}-01`);
+
+   const billingsMonth = receptionBillings.filter(bill => {
+      if (moment(bill.dateIn).isSameOrBefore(specifiedDate.clone().endOf('month')) && (!bill.dateOut || moment(bill.dateOut).isSameOrAfter(specifiedDate))) {
+         return bill;
+      }
+   });
+      
+   const totalBillingMonth = billingsMonth.reduce((acc, current) => {
+      let inDate = specifiedDate;
+
+      if (moment(current.dateIn).isAfter(specifiedDate)) {
+         inDate = moment(current.dateIn);
+      }
+
+      let outDate = specifiedDate.clone().endOf('month');
+
+      if (specifiedDate.isSame(moment().format('YYYY-MM-01'))) {
+         outDate = moment();
+      }
+
+      if (current.dateOut) {
+         outDate = moment(current.dateOut);
+      }
+
+      return acc + ((outDate.diff(inDate, 'days') + 1) * palletDay);
+   }, 0);
+
+   const dispatchesMonth = dispatches.filter((dispatch) => {
+      if (moment(dispatch.date).isSameOrAfter(specifiedDate) && moment(dispatch.date).isSameOrBefore(specifiedDate.clone().endOf('month'))) {
+         return dispatch
+      }
+   });
+      
+   const totalDispatchMonth = dispatchesMonth.reduce((acc, current) => acc + current.receiver.city.deliveryPrice, 0);
+
+   const currentMonthDebt = totalBillingMonth + totalDispatchMonth;
+
+   // Detalles del billing de paletas para el año-mes solicitado
+   const billsData = billingsMonth.map(bill => {
+      let inDate = specifiedDate;
+
+      if (moment(bill.dateIn).isAfter(specifiedDate)) {
+         inDate = moment(bill.dateIn);
+      }
+
+      let outDate = specifiedDate.clone().endOf('month');
+
+      if (specifiedDate.isSame(moment().format('YYYY-MM-01'))) {
+         outDate = moment();
+      }
+
+      if (bill.dateOut) {
+         outDate = moment(bill.dateOut);
+      }
+
+      const cost = (outDate.diff(inDate, 'days') + 1) * palletDay;
+
+      return {
+         ...bill.get(),
+         cost
+      };
+   });
+
+
+   return {
+      currentMonthDebt,
+      totalDebt,
+      positiveBalance,
+      billingDetails: {
+         dispatches: dispatchesMonth,
+         receptionBillings: billsData
+      }
+   }
+}
+
 
 
 module.exports = {
-   updateDispatchBillings
+   updateDispatchBillings,
+   getBillingData
 }
