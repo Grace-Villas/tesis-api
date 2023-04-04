@@ -294,7 +294,7 @@ const findByIdAndDeliver = async (req = request, res = response) => {
       await dispatch.save();
 
       // Verificar que si no existen más despachos en el lote el mismo se marca como finalizado
-      await updateBatchIfFullyDelivered();
+      await updateBatchIfFullyDelivered(dispatch.batchId);
 
       await dispatch.reload();
    
