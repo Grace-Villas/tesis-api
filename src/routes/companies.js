@@ -5,7 +5,7 @@ const { validateFields } = require('../middlewares/validate-fields');
 const { validateJWT, validatePermission } = require('../middlewares/validate-jwt');
 const { validateCityId } = require('../middlewares/city-express');
 const { validateCompanyId } = require('../middlewares/company-express');
-const { validateUniqueEmail, validatePhone } = require('../middlewares/custom-express');
+const { validateUniqueEmail, validatePhone, validateRut } = require('../middlewares/custom-express');
 
 const {
    create,
@@ -28,6 +28,7 @@ router.get('/', [
 
    query('limit', 'El límite de documentos debe ser un entero mayor a cero').optional().isInt({gt: 0}),
    query('skip', 'La cantidad de documentos a omitir debe ser un entero mayor a cero').optional().isInt({min: 0}),
+   
    validateFields
 ], findAll);
 
@@ -64,7 +65,8 @@ router.post('/', [
 
    body('rut')
       .not().isEmpty().withMessage('El documento es obligatorio').bail()
-      .isLength({min: 8}).withMessage('El documento es inválido'),
+      .isString().withMessage('El rut debe tener un formato string').bail()
+      .custom(validateRut),
 
    body('cityId')
       .not().isEmpty().withMessage('El id es obligatorio').bail()
@@ -73,6 +75,7 @@ router.post('/', [
 
    body('phone')
       .not().isEmpty().withMessage('El teléfono es obligatorio').bail()
+      .isString().withMessage('El teléfono debe tener un formato string').bail()
       .custom((phone => validatePhone(phone, { locale: 'es-VE', phoneExtension: '+58' }))),
       
    validateFields
@@ -88,30 +91,26 @@ router.put('/:id', [
       .custom(validateCompanyId),
       
    body('name').optional()
-      .not().isEmpty().withMessage('El nombre es obligatorio').bail()
       .isAlpha('es-ES', { ignore: ' -.,'}).withMessage('El nombre debe contener solo letras'),
 
    body('address').optional()
-      .not().isEmpty().withMessage('La dirección es obligatoria').bail()
       .isString().withMessage('La dirección debe ser alfanumérica'),
 
    body('email').optional()
-      .not().isEmpty().withMessage('El email es obligatorio').bail()
       .isEmail().withMessage('El email es inválido')
-      .custom((name, { req }) => validateUniqueEmail(name, { modelName: 'Company', req, isUpdate: true })),
-      // .custom((name, { req }) => validateUniqueEmail(name, { modelName: 'User', req })), TODO: arreglar funcionalidad de cambio de correo
+      .custom((email, { req }) => validateUniqueEmail(email, { modelName: 'Company', req, isUpdate: true })),
+      // .custom((email, { req }) => validateUniqueEmail(email, { modelName: 'User', req })), TODO: arreglar funcionalidad de cambio de correo
 
    body('rut').optional()
-      .not().isEmpty().withMessage('El documento es obligatorio').bail()
-      .isLength({min: 8}).withMessage('El documento es inválido'),
+      .isString().withMessage('El rut debe tener un formato string').bail()
+      .custom(validateRut),
 
    body('cityId').optional()
-      .not().isEmpty().withMessage('El id es obligatorio').bail()
       .isInt({min: 1}).withMessage('El id es inválido').bail()
       .custom(validateCityId),
       
    body('phone').optional()
-      .not().isEmpty().withMessage('El teléfono es obligatorio').bail()
+      .isString().withMessage('El teléfono debe tener un formato string').bail()
       .custom((phone => validatePhone(phone, { locale: 'es-VE', phoneExtension: '+58' }))),
 
    validateFields
