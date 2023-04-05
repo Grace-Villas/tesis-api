@@ -68,16 +68,31 @@ const create = async (req = request, res = response) => {
 
 /**
  * Listar pagos registrados.
+ * @param {integer} companyId string, filtro de búsqueda. `query`. Opcional
+ * @param {integer} statusId string, filtro de búsqueda. `query`. Opcional
+ * @param {integer} date string, filtro de búsqueda. `query`. Opcional
  * @param {integer} skip integer, cantidad de resultados a omitir (Paginación). `query`
  * @param {integer} limit integer, cantidad de resultados límite (Paginación). `query`
  */
 const findAll = async (req = request, res = response) => {
    try {
-      const { skip = 0, limit } = req.query;
+      const { companyId, statusId, date, skip = 0, limit } = req.query;
 
       const authUser = req.authUser;
 
       let where = {}
+
+      if (typeof companyId != 'undefined') {
+         where.companyId = companyId;
+      }
+
+      if (typeof statusId != 'undefined') {
+         where.statusId = statusId;
+      }
+
+      if (typeof date != 'undefined') {
+         where.date = date;
+      }
 
       if (authUser.companyId) {
          where.companyId = authUser.companyId;
@@ -86,6 +101,7 @@ const findAll = async (req = request, res = response) => {
       if (limit) {
          const { rows, count } = await Payment.findAndCountAll({
             include: eLoad,
+            where,
             offset: Number(skip),
             limit: Number(limit),
             order: [
@@ -103,6 +119,7 @@ const findAll = async (req = request, res = response) => {
       } else {
          const payments = await Payment.findAll({
             include: eLoad,
+            where,
             order: [
                ['date', 'ASC']
             ]
@@ -124,11 +141,13 @@ const findById = async (req = request, res = response) => {
    try {
       const { id } = req.params;
 
+      const authUser = req.authUser;
+
       const payment = await Payment.findByPk(id, {
          include: eLoad
       });
 
-      if (!payment) {
+      if (!payment || (authUser.companyId && authUser.companyId != payment.companyId)) {
          return res.status(400).json({
             errors: [
                {
@@ -156,9 +175,11 @@ const findByIdAndDelete = async (req = request, res = response) => {
    try {
       const { id } = req.params;
 
+      const authUser = req.authUser;
+
       const payment = await Payment.findByPk(id);
 
-      if (!payment) {
+      if (!payment || (authUser.companyId && authUser.companyId != payment.companyId)) {
          return res.status(400).json({
             errors: [
                {
@@ -190,7 +211,7 @@ const findByIdAndRestore = async (req = request, res = response) => {
 
       const payment = await Payment.findByPk(id, { paranoid: false });
 
-      if (!payment) {
+      if (!payment || (authUser.companyId && authUser.companyId != payment.companyId)) {
          return res.status(400).json({
             errors: [
                {

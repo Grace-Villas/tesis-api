@@ -125,6 +125,8 @@ const findAll = async (req = request, res = response) => {
    try {
       const { companyId, userId, statusId, date, skip = 0, limit } = req.query;
 
+      const authUser = req.authUser;
+
       let where = {}
 
       if (typeof date != 'undefined') {
@@ -141,6 +143,10 @@ const findAll = async (req = request, res = response) => {
 
       if (typeof companyId != 'undefined') {
          where.companyId = companyId;
+      }
+
+      if (authUser.companyId) {
+         where.companyId = authUser.companyId;
       }
 
       if (limit) {
