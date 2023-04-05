@@ -1,12 +1,4 @@
 const { request, response } = require('express');
-const moment = require('moment/moment');
-
-// Modelos
-const {
-   ReceptionProductBilling, ReceptionProduct, Reception,
-   Dispatch, DispatchStatus, Receiver, City,
-   Payment, PaymentStatus
-} = require('../database/models');
 
 // Helpers
 const { getBillingData } = require('../helpers/billing');
