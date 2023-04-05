@@ -28,17 +28,19 @@ router.get('/', [
 
    query('limit', 'El límite de documentos debe ser un entero mayor a cero').optional().isInt({gt: 0}),
    query('skip', 'La cantidad de documentos a omitir debe ser un entero mayor a cero').optional().isInt({min: 0}),
+
    validateFields
 ], findAll);
 
 // Obtener un envío según su id
 router.get('/:id', [
    validateJWT,
-   validatePermission('receptions', 'list', true),
+   validatePermission('receptions', 'list'),
 
    param('id')
       .not().isEmpty().withMessage('El id es obligatorio').bail()
       .isInt({min: 1}).withMessage('El id es inválido'),
+      
    validateFields
 ], findById);
 

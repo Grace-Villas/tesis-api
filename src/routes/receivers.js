@@ -38,7 +38,7 @@ router.get('/', [
 // Obtener un destinatario según su id
 router.get('/:id', [
    validateJWT,
-   validatePermission('receivers', 'list', true),
+   validatePermission('receivers', 'list'),
 
    param('id')
       .not().isEmpty().withMessage('El id es obligatorio').bail()
@@ -49,7 +49,7 @@ router.get('/:id', [
 // Crear un nuevo destinatario
 router.post('/', [
    validateJWT,
-   validatePermission('receivers', 'create', true),
+   validatePermission('receivers', 'create'),
 
    body('companyId').optional()
       .isInt({gt: 0}).withMessage('El id es inválido').bail()
@@ -83,7 +83,7 @@ router.post('/', [
 // Actualizar un destinatario
 router.put('/:id', [
    validateJWT,
-   validatePermission('receivers', 'edit', true),
+   validatePermission('receivers', 'edit'),
 
    param('id')
       .not().isEmpty().withMessage('El id es obligatorio').bail()
@@ -111,7 +111,7 @@ router.put('/:id', [
 // Restaurar destinatario eliminado
 router.put('/restore/:id', [
    validateJWT,
-   validatePermission('receivers', 'delete', true),
+   validatePermission('receivers', 'delete'),
 
    param('id')
       .not().isEmpty().withMessage('El id es obligatorio').bail()
@@ -123,7 +123,7 @@ router.put('/restore/:id', [
 // Eliminar un destinatario
 router.delete('/:id', [
    validateJWT,
-   validatePermission('receivers', 'delete', true),
+   validatePermission('receivers', 'delete'),
 
    param('id')
       .not().isEmpty().withMessage('El id es obligatorio').bail()

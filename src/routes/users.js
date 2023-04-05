@@ -3,7 +3,6 @@ const { body, query, param } = require('express-validator');
 
 const { validateFields } = require('../middlewares/validate-fields');
 const { validateJWT, validatePermission } = require('../middlewares/validate-jwt');
-const { validateCompanyId } = require('../middlewares/company-express');
 const { validateUniqueEmail } = require('../middlewares/custom-express');
 
 const {

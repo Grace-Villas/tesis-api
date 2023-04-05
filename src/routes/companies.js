@@ -35,7 +35,7 @@ router.get('/', [
 // Obtener una compañía según su id
 router.get('/:id', [
    validateJWT,
-   validatePermission('users', 'list', true),
+   validatePermission('companies', 'list', true),
 
    param('id')
       .not().isEmpty().withMessage('El id es obligatorio').bail()
@@ -47,7 +47,7 @@ router.get('/:id', [
 // Crear una nueva compañía
 router.post('/', [
    validateJWT,
-   validatePermission('users', 'create', true),
+   validatePermission('companies', 'create', true),
 
    body('name')
       .not().isEmpty().withMessage('El nombre es obligatorio').bail()
@@ -84,7 +84,7 @@ router.post('/', [
 // Actualizar una compañía
 router.put('/:id', [
    validateJWT,
-   validatePermission('users', 'edit', true),
+   validatePermission('companies', 'edit', true),
 
    param('id')
       .isInt({min: 1}).withMessage('El id es inválido').bail()
@@ -119,7 +119,7 @@ router.put('/:id', [
 // Restaurar compañía eliminada
 router.put('/restore/:id', [
    validateJWT,
-   validatePermission('users', 'delete', true),
+   validatePermission('companies', 'delete', true),
 
    param('id')
       .not().isEmpty().withMessage('El id es obligatorio').bail()
@@ -131,7 +131,7 @@ router.put('/restore/:id', [
 // Eliminar una compañía
 router.delete('/:id', [
    validateJWT,
-   validatePermission('users', 'delete', true),
+   validatePermission('companies', 'delete', true),
 
    param('id')
       .not().isEmpty().withMessage('El id es obligatorio').bail()

@@ -93,7 +93,7 @@ router.post('/', [
 // Asignar despacho a lote
 router.put('/allocate/:id', [
    validateJWT,
-   validatePermission('batches', 'edit'),
+   validatePermission('batches', 'edit', true),
 
    param('id')
       .not().isEmpty().withMessage('El id es obligatorio').bail()
@@ -115,7 +115,7 @@ router.put('/allocate/:id', [
 // Remover despacho de lote
 router.put('/dellocate/:id', [
    validateJWT,
-   validatePermission('batches', 'edit'),
+   validatePermission('batches', 'edit', true),
 
    param('id')
       .not().isEmpty().withMessage('El id es obligatorio').bail()
