@@ -99,7 +99,6 @@ const findAll = async (req = request, res = response) => {
 
       if (typeof user.companyId == 'number') {
          where.companyId = user.companyId;
-
       }
 
       if (limit) {
