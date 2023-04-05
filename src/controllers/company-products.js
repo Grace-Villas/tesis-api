@@ -76,11 +76,13 @@ const findById = async (req = request, res = response) => {
    try {
       const { id } = req.params;
 
+      const authUser = req.authUser;
+
       const product = await CompanyProduct.findByPk(id, {
          include: eLoad
       });
 
-      if (!product) {
+      if (!product || (authUser.companyId && (authUser.companyId != product.companyId))) {
          return res.status(400).json({
             errors: [
                {
