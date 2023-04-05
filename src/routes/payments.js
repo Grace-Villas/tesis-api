@@ -27,8 +27,13 @@ const router = Router();
 router.get('/', [
    validateJWT,
 
+   query('companyId', 'El id es inválido').optional().isInt({gt: 0}),
+   query('statusId', 'El id es inválido').optional().isInt({gt: 0}),
+   query('date', 'La fecha debe tener un formato válido').optional().isDate(),
+
    query('limit', 'El límite de documentos debe ser un entero mayor a cero').optional().isInt({gt: 0}),
    query('skip', 'La cantidad de documentos a omitir debe ser un entero mayor a cero').optional().isInt({min: 0}),
+
    validateFields
 ], findAll);
 
