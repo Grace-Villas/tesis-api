@@ -185,12 +185,14 @@ const findAll = async (req = request, res = response) => {
 const findById = async (req = request, res = response) => {
    try {
       const { id } = req.params;
+
+      const authUser = req.authUser;
       
       const dispatch = await Dispatch.findByPk(id, {
          include: eLoad,
       });
 
-      if (!dispatch) {
+      if (!dispatch || (authUser.companyId && authUser.companyId != dispatch.companyId)) {
          return res.status(400).json({
             errors: [
                {
@@ -218,11 +220,13 @@ const findByIdAndCancel = async (req = request, res = response) => {
    try {
       const { id } = req.params;
 
+      const authUser = req.authUser;
+
       const dispatch = await Dispatch.findByPk(id, {
          include: eLoad
       });
 
-      if (!dispatch) {
+      if (!dispatch || (authUser.companyId && authUser.companyId != dispatch.companyId)) {
          return res.status(400).json({
             errors: [
                {
