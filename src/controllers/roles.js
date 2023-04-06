@@ -92,6 +92,7 @@ const findAll = async (req = request, res = response) => {
          const { rows, count } = await Role.findAndCountAll({
             where,
             include: eLoad,
+            distinct: true,
             offset: Number(skip),
             limit: Number(limit),
             order: [
