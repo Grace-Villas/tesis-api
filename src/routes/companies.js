@@ -25,6 +25,11 @@ const router = Router();
 // Listar compañías registradas
 router.get('/', [
    validateJWT,
+   
+   query('search').optional()
+      .isString().withMessage('La búsqueda debe tener un formato string'),
+   query('cityId').optional()
+      .isInt({gt: 0}).withMessage('El id es inválido'),
 
    query('limit', 'El límite de documentos debe ser un entero mayor a cero').optional().isInt({gt: 0}),
    query('skip', 'La cantidad de documentos a omitir debe ser un entero mayor a cero').optional().isInt({min: 0}),

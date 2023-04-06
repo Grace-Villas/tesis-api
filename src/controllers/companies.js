@@ -116,10 +116,26 @@ const create = async (req = request, res = response) => {
  */
 const findAll = async (req = request, res = response) => {
    try {
-      const { skip = 0, limit } = req.query;
+      const { search, cityId, skip = 0, limit } = req.query;
+
+      let where = {}
+
+      if (typeof search != 'undefined') {
+         where[Op.or] = [
+            { name: { [Op.substring]: search } },
+            { rut: { [Op.substring]: search } },
+            { phone: { [Op.substring]: search } },
+            { email: { [Op.substring]: search } },
+         ];
+      }
+
+      if (typeof cityId != 'undefined') {
+         where.cityId = cityId;
+      }
 
       if (limit) {
          const { rows, count } = await Company.findAndCountAll({
+            where,
             include: eLoad,
             offset: Number(skip),
             limit: Number(limit),
@@ -137,6 +153,7 @@ const findAll = async (req = request, res = response) => {
          });
       } else {
          const companies = await Company.findAll({
+            where,
             include: eLoad,
             order: [
                ['name', 'ASC']
