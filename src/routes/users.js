@@ -24,10 +24,8 @@ const router = Router();
 router.get('/', [
    validateJWT,
 
-   query('firstName').optional()
+   query('name').optional()
       .isString().withMessage('El nombre debe tener un formato string'),
-   query('lastName').optional()
-      .isString().withMessage('El apellido debe tener un formato string'),
    query('email').optional()
       .isString().withMessage('El correo debe tener un formato string'),
 

@@ -1,5 +1,5 @@
 const { request, response } = require('express');
-const { Op, literal } = require('sequelize');
+const { Op, fn, where: seqWhere, col } = require('sequelize');
 const bcryptjs = require('bcryptjs');
 
 // Modelos
@@ -74,18 +74,14 @@ const create = async (req = request, res = response) => {
  */
 const findAll = async (req = request, res = response) => {
    try {
-      const { firstName, lastName, email, skip = 0, limit } = req.query;
+      const { name, email, skip = 0, limit } = req.query;
 
       let where = {}
 
       const user = req.authUser;
 
-      if (typeof firstName != 'undefined') {
-         where.firstName = { [Op.substring]: firstName };
-      }
-
-      if (typeof lastName != 'undefined') {
-         where.lastName = { [Op.substring]: lastName };
+      if (typeof name != 'undefined') {
+         where.name = seqWhere(fn('concat', col('firstName'), ' ', col('lastName')), { [Op.substring]: name })
       }
 
       if (typeof email != 'undefined') {
