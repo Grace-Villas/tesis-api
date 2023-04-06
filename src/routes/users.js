@@ -24,6 +24,13 @@ const router = Router();
 router.get('/', [
    validateJWT,
 
+   query('firstName').optional()
+      .isString().withMessage('El nombre debe tener un formato string'),
+   query('lastName').optional()
+      .isString().withMessage('El apellido debe tener un formato string'),
+   query('email').optional()
+      .isString().withMessage('El correo debe tener un formato string'),
+
    query('limit', 'El límite de documentos debe ser un entero mayor a cero').optional().isInt({gt: 0}),
    query('skip', 'La cantidad de documentos a omitir debe ser un entero mayor a cero').optional().isInt({min: 0}),
    validateFields

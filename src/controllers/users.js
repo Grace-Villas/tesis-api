@@ -1,5 +1,5 @@
 const { request, response } = require('express');
-const { Op } = require('sequelize');
+const { Op, literal } = require('sequelize');
 const bcryptjs = require('bcryptjs');
 
 // Modelos
@@ -74,15 +74,25 @@ const create = async (req = request, res = response) => {
  */
 const findAll = async (req = request, res = response) => {
    try {
-      const { skip = 0, limit } = req.query;
+      const { firstName, lastName, email, skip = 0, limit } = req.query;
+
+      let where = {}
 
       const user = req.authUser;
 
-      const where = user.isAdmin
-         ?
-         { companyId: { [Op.is]: null } }
-         :
-         { companyId: user.companyId }
+      if (typeof firstName != 'undefined') {
+         where.firstName = { [Op.substring]: firstName };
+      }
+
+      if (typeof lastName != 'undefined') {
+         where.lastName = { [Op.substring]: lastName };
+      }
+
+      if (typeof email != 'undefined') {
+         where.email = { [Op.substring]: email };
+      }
+
+      where.companyId = user.isAdmin ? { [Op.is]: null } : user.companyId
 
       if (limit) {
          const { rows, count } = await User.findAndCountAll({
