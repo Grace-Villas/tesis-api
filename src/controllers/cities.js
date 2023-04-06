@@ -211,6 +211,10 @@ const findByIdAndUpdate = async (req = request, res = response) => {
 
       if (typeof hasDeliveries != 'undefined') {
          city.hasDeliveries = hasDeliveries;
+
+         if (!hasDeliveries) {
+            city.deliveryPrice = null; 
+         }
       }
 
       if (typeof deliveryPrice != 'undefined') {
