@@ -15,6 +15,20 @@ const CompanyConfig = require('../helpers/config');
 
 
 
+// Eager loading
+const eLoad = [
+   {
+      model: UserRole,
+      as: 'userRoles',
+      include: {
+         model: Role,
+         as: 'role'
+      }
+   }
+];
+
+
+
 // Funciones del controlador
 
 /**
@@ -93,6 +107,8 @@ const findAll = async (req = request, res = response) => {
       if (limit) {
          const { rows, count } = await User.findAndCountAll({
             where,
+            include: eLoad,
+            distinct: true,
             offset: Number(skip),
             limit: Number(limit),
             order: [
@@ -111,6 +127,7 @@ const findAll = async (req = request, res = response) => {
       } else {
          const users = await User.findAll({
             where,
+            include: eLoad,
             order: [
                ['firstName', 'ASC'],
                ['lastName', 'ASC']
@@ -135,7 +152,9 @@ const findById = async (req = request, res = response) => {
 
       const authUser = req.authUser;
       
-      const user = await User.findByPk(id);
+      const user = await User.findByPk(id, {
+         include: eLoad
+      });
 
       if (!user || (user.companyId !== authUser.companyId)) {
          return res.status(400).json({
@@ -208,7 +227,9 @@ const findByIdAndUpdate = async (req = request, res = response) => {
 
       const authUser = req.authUser;
 
-      const user = await User.findByPk(id);
+      const user = await User.findByPk(id, {
+         include: eLoad
+      });
 
       if (!user || (user.companyId !== authUser.companyId)) {
          return res.status(400).json({
