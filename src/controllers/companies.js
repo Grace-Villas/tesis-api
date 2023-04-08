@@ -3,7 +3,7 @@ const { Op } = require('sequelize');
 const bcryptjs = require('bcryptjs');
 
 // Modelos
-const { Company, City, State, Country, User } = require('../database/models');
+const { Company, City, State, Country, User, Role, UserRole } = require('../database/models');
 
 // Helpers
 const { generatePassword } = require('../helpers/password-generator');
@@ -67,6 +67,10 @@ const create = async (req = request, res = response) => {
          });
       }
 
+      const role = await Role.findOne({
+         where: { name: 'admin' }
+      });
+
       const password = generatePassword();
       
       const salt = bcryptjs.genSaltSync();
@@ -83,7 +87,10 @@ const create = async (req = request, res = response) => {
             firstName: stringName,
             lastName: '',
             email: stringEmail,
-            password: hashPassword
+            password: hashPassword,
+            userRoles: [{
+               roleId: role.id
+            }]
          }]
       }
 
