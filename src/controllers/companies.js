@@ -1,5 +1,6 @@
 const { request, response } = require('express');
 const { Op } = require('sequelize');
+const bcryptjs = require('bcryptjs');
 
 // Modelos
 const { Company, City, State, Country, User } = require('../database/models');
@@ -67,6 +68,9 @@ const create = async (req = request, res = response) => {
       }
 
       const password = generatePassword();
+      
+      const salt = bcryptjs.genSaltSync();
+      const hashPassword = bcryptjs.hashSync(password, salt);
 
       const data = {
          name: stringName,
@@ -79,7 +83,7 @@ const create = async (req = request, res = response) => {
             firstName: stringName,
             lastName: '',
             email: stringEmail,
-            password
+            password: hashPassword
          }]
       }
 
@@ -97,7 +101,7 @@ const create = async (req = request, res = response) => {
          to: stringEmail,
          subject: `¡Bienvenido a ${config.get('companyName').value}!`
       }, {
-         companyName: config.get('companyName'),
+         companyName: config.get('companyName').value,
          clientName: capitalizeAllWords(company.name),
          password
       });
