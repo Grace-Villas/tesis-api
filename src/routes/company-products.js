@@ -19,6 +19,7 @@ const router = Router();
 router.get('/', [
    validateJWT,
 
+   query('name', 'El nombre debe tener formato string').optional().isString({gt: 0}),
    query('companyId', 'El id debe ser un entero').optional().isInt({gt: 0}),
 
    query('limit', 'El límite de documentos debe ser un entero mayor a cero').optional().isInt({gt: 0}),

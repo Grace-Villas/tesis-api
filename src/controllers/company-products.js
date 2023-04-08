@@ -25,11 +25,15 @@ const eLoad = [
  */
 const findAll = async (req = request, res = response) => {
    try {
-      const { companyId, skip = 0, limit } = req.query;
+      const { name, companyId, skip = 0, limit } = req.query;
 
       const authUser = req.authUser;
 
       let where = {}
+
+      if (typeof name != 'undefined') {
+         where['$product.name$'] = name;
+      }
 
       if (typeof companyId != 'undefined') {
          where.companyId = companyId;
