@@ -19,14 +19,16 @@ const eLoad = [
    {
       model: ReceptionProduct,
       as: 'products',
-      include: {
-         model: Product,
-         as: 'product',
-         include: {
+      include: [
+         {
+            model: Product,
+            as: 'product',
+         },
+         {
             model: ReceptionProductBilling,
             as: 'billings'
          }
-      }
+      ]
    }
 ];
 
@@ -131,6 +133,7 @@ const findAll = async (req = request, res = response) => {
       if (limit) {
          const { rows, count } = await Reception.findAndCountAll({
             include: eLoad,
+            distinct: true,
             where,
             offset: Number(skip),
             limit: Number(limit),
