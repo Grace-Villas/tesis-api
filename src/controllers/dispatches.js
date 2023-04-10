@@ -153,6 +153,7 @@ const findAll = async (req = request, res = response) => {
          const { rows, count } = await Dispatch.findAndCountAll({
             include: eLoad,
             where,
+            distinct: true,
             offset: Number(skip),
             limit: Number(limit),
             order: [
