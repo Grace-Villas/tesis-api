@@ -2,7 +2,7 @@ const { request, response } = require('express');
 
 // Modelos
 const {
-   Dispatch, DispatchStatus, Company, User, DispatchProduct, Product, Batch, BatchStatus, Receiver, CompanyProduct
+   Dispatch, DispatchStatus, Company, User, DispatchProduct, Product, Batch, BatchStatus, Receiver, City, State, CompanyProduct
 } = require('../database/models');
 
 // Helpers
@@ -27,7 +27,15 @@ const eLoad = [
    },
    {
       model: Receiver,
-      as: 'receiver'
+      as: 'receiver',
+      include: {
+         model: City,
+         as: 'city',
+         include: {
+            model: State,
+            as: 'state'
+         }
+      }
    },
    {
       model: Batch,
