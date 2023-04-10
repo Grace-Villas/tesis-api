@@ -57,8 +57,7 @@ router.post('/', [
    validateJWT,
    validatePermission('dispatches', 'create'),
 
-   body('companyId')
-      .not().isEmpty().withMessage('El id es obligatorio').bail()
+   body('companyId').optional()
       .isInt({min: 1}).withMessage('El id es inválido').bail()
       .custom(validateCompanyId),
 
