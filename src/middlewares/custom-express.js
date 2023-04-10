@@ -1,3 +1,5 @@
+const validator = require('validator');
+
 const Models = require('../database/models');
 
 
@@ -11,7 +13,7 @@ const Models = require('../database/models');
  * @param {string} request.modelName
  * @param {import('express').Request} request.req
  * @param {boolean} request.isUpdate
- * @returns {Boolean} `bool`
+ * @returns {Boolean|Error} `bool`
  */
 const validateUniqueName = async (name, { modelName, req, isUpdate = false }) => {
    try {
@@ -41,7 +43,7 @@ const validateUniqueName = async (name, { modelName, req, isUpdate = false }) =>
  * @param {string} request.modelName
  * @param {import('express').Request} request.req
  * @param {boolean} request.isUpdate
- * @returns {Boolean} `bool`
+ * @returns {Boolean|Error} `bool`
  */
 const validateUniqueEmail = async (email, { modelName, req, isUpdate = false }) => {
    try {
@@ -62,9 +64,52 @@ const validateUniqueEmail = async (email, { modelName, req, isUpdate = false }) 
    }
 }
 
+/**
+ * Función para determinar si el rut posee un formato válido
+ * @param {string} rut `requerido` rut a evaluar
+ * @returns {Boolean|Error}
+ */
+const validateRut = (rut) => {
+   try {
+      const splitted = rut.split('-');
+
+      const [letter, numbers] = splitted;
+
+      if (splitted.length != 2 || !letter || letter.length > 1 || !numbers || !Number(numbers)) {
+         throw new Error('El formato es inválido. Ejemplo: J-12345678');
+      }
+
+      return true;
+   } catch (error) {
+      console.log(error);
+      throw new Error('El formato es inválido. Ejemplo: J-12345678');
+   }
+}
+
+/**
+ * Método para verificar un número de teléfono.
+ * @param {string} phone `string` Número de teléfono
+ * @param {{locale:string, phoneExtension:string}} config `object` Configuraciones de validación
+ * @returns {Boolean|Error} `bool`
+ */
+const validatePhone = (phone, { locale = 'es-VE', phoneExtension = '+58' } = {}) => {
+   try {
+      if (!validator.isMobilePhone(`${phoneExtension}${phone}`, locale, { strictMode: true })) {
+         throw new Error('El teléfono es inválido');
+      }
+
+      return true;
+   } catch (error) {
+      console.log(error);
+      throw new Error('El teléfono es inválido');
+   }
+}
+
 
 
 module.exports = {
    validateUniqueEmail,
-   validateUniqueName
+   validateUniqueName,
+   validateRut,
+   validatePhone
 }

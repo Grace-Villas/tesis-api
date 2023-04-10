@@ -5,6 +5,7 @@ const { validateFields } = require('../middlewares/validate-fields');
 const { validateJWT, validatePermission } = require('../middlewares/validate-jwt');
 const { validateStateId } = require('../middlewares/state-express');
 const { validateUniqueName } = require('../middlewares/custom-express');
+const { validateDeliveryPriceNeeded } = require('../middlewares/city-express');
 
 const {
    create,
@@ -24,10 +25,19 @@ const router = Router();
 // Listar ciudades registrados
 router.get('/', [
    validateJWT,
-   validatePermission('cities', 'list', true),
+
+   query('countryId').optional()
+      .isInt({gt: 0}).withMessage('El id es inválido'),
+   query('stateId').optional()
+      .isInt({gt: 0}).withMessage('El id es inválido'),
+   query('hasDeliveries').optional()
+      .isBoolean().withMessage('El atributo debe ser un booleano'),
+   query('name').optional()
+      .isString().withMessage('El nombre debe tener un formato string'),
 
    query('limit', 'El límite de documentos debe ser un entero mayor a cero').optional().isInt({gt: 0}),
    query('skip', 'La cantidad de documentos a omitir debe ser un entero mayor a cero').optional().isInt({min: 0}),
+   
    validateFields
 ], findAll);
 
@@ -58,6 +68,14 @@ router.post('/', [
       .isInt({min: 1}).withMessage('El id es inválido').bail()
       .custom(validateStateId),
 
+   body('hasDeliveries').optional()
+      .isBoolean().withMessage('El valor debe ser de tipo booleano'),
+      
+   body('deliveryPrice')
+      .if((_, { req }) => req.body.hasDeliveries)
+      .not().isEmpty().withMessage('El precio de despacho es obligatorio').bail()
+      .isFloat({gt: 0}).withMessage('El precio de despacho debe ser un decimal mayor a 0'),
+
    validateFields
 ], create);
 
@@ -77,6 +95,14 @@ router.put('/:id', [
    body('stateId').optional()
       .isInt({min: 1}).withMessage('El id es inválido').bail()
       .custom(validateStateId),
+
+   body('hasDeliveries').optional()
+      .isBoolean().withMessage('El valor debe ser de tipo booleano'),
+      
+   body('deliveryPrice')
+      .if(validateDeliveryPriceNeeded)
+      .not().isEmpty().withMessage('El precio de despacho es obligatorio').bail()
+      .isFloat({gt: 0}).withMessage('El precio de despacho debe ser un decimal mayor a 0'),
 
    validateFields
 ], findByIdAndUpdate);

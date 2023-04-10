@@ -2,7 +2,7 @@ const { Router } = require('express');
 const { body } = require('express-validator');
 
 const { validateFields } = require('../middlewares/validate-fields');
-const { validateJWT } = require('../middlewares/validate-jwt');
+const { validateJWT, validatePermission } = require('../middlewares/validate-jwt');
 
 const {
    findAll,
@@ -21,6 +21,7 @@ router.get('/', findAll);
 // Actualizar configuración del sistema dado su id
 router.put('/:id', [
    validateJWT,
+   validatePermission('config', 'edit', true),
    
    body('value')
       .not().isEmpty().withMessage('El valor es obligatorio').bail()

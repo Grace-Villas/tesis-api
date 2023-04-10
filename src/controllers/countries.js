@@ -1,4 +1,5 @@
 const { request, response } = require('express');
+const { Op } = require('sequelize');
 
 // Modelos
 const { Country } = require('../database/models');
@@ -28,15 +29,23 @@ const create = async (req = request, res = response) => {
 
 /**
  * Listar países registrados.
+ * @param {integer} name integer, Filtro de búsqueda. `query`. Opcional
  * @param {integer} skip integer, cantidad de resultados a omitir (Paginación). `query`
  * @param {integer} limit integer, cantidad de resultados límite (Paginación). `query`
  */
 const findAll = async (req = request, res = response) => {
    try {
-      const { skip = 0, limit } = req.query;
+      const { name, skip = 0, limit } = req.query;
+
+      let where = {}
+
+      if (typeof name != 'undefined') {
+         where.name = { [Op.substring]: name };
+      }
 
       if (limit) {
          const { rows, count } = await Country.findAndCountAll({
+            where,
             offset: Number(skip),
             limit: Number(limit),
             order: [
@@ -53,6 +62,7 @@ const findAll = async (req = request, res = response) => {
          });
       } else {
          const countries = await Country.findAll({
+            where,
             order: [
                ['name', 'ASC']
             ]

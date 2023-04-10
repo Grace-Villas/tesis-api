@@ -3,7 +3,6 @@ const { body, query, param } = require('express-validator');
 
 const { validateFields } = require('../middlewares/validate-fields');
 const { validateJWT, validatePermission } = require('../middlewares/validate-jwt');
-const { validateCompanyId } = require('../middlewares/company-express');
 const { validateUniqueEmail } = require('../middlewares/custom-express');
 
 const {
@@ -24,7 +23,11 @@ const router = Router();
 // Listar usuarios registrados
 router.get('/', [
    validateJWT,
-   validatePermission('users', 'list'),
+
+   query('name').optional()
+      .isString().withMessage('El nombre debe tener un formato string'),
+   query('email').optional()
+      .isString().withMessage('El correo debe tener un formato string'),
 
    query('limit', 'El límite de documentos debe ser un entero mayor a cero').optional().isInt({gt: 0}),
    query('skip', 'La cantidad de documentos a omitir debe ser un entero mayor a cero').optional().isInt({min: 0}),

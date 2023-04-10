@@ -1,4 +1,5 @@
 const { request, response } = require('express');
+const { Op } = require('sequelize');
 
 // Modelos
 const { State, Country } = require('../database/models');
@@ -35,16 +36,29 @@ const create = async (req = request, res = response) => {
 
 /**
  * Listar estados registrados.
+ * @param {integer} countryId integer, Filtro de búsqueda. `query`. Opcional
+ * @param {integer} name integer, Filtro de búsqueda. `query`. Opcional
  * @param {integer} skip integer, cantidad de resultados a omitir (Paginación). `query`
  * @param {integer} limit integer, cantidad de resultados límite (Paginación). `query`
  */
 const findAll = async (req = request, res = response) => {
    try {
-      const { skip = 0, limit } = req.query;
+      const { countryId, name, skip = 0, limit } = req.query;
+
+      let where = {}
+
+      if (typeof countryId != 'undefined') {
+         where.countryId = countryId
+      }
+
+      if (typeof name != 'undefined') {
+         where.name = { [Op.substring]: name };
+      }
 
       if (limit) {
          const { rows, count } = await State.findAndCountAll({
             include: eLoad,
+            where,
             offset: Number(skip),
             limit: Number(limit),
             order: [
@@ -62,6 +76,7 @@ const findAll = async (req = request, res = response) => {
       } else {
          const states = await State.findAll({
             include: eLoad,
+            where,
             order: [
                ['name', 'ASC']
             ]

@@ -9,8 +9,9 @@ module.exports = (sequelize, DataTypes) => {
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
-    static associate(models) {
+    static associate({ReceptionProduct}) {
       // define association here
+      this.belongsTo(ReceptionProduct, { foreignKey: 'receptionProductId', as: 'receptionProduct' });
     }
   }
   ReceptionProductBilling.init({
@@ -35,7 +36,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       validate: {
         min: {
-          args: 0,
+          args: [0],
           msg: 'La cantidad restante no puede ser negativa'
         }
       }
@@ -47,7 +48,7 @@ module.exports = (sequelize, DataTypes) => {
     paranoid: true,
     validate: {
       dateOutAfterDateIn() {
-        if (!this.dateOut.isAfter(this.dateIn)) {
+        if (this.dateOut && !this.dateOut.isAfter(this.dateIn)) {
           throw new Error('La fecha en la que se acabó la paleta no puede ser anterior a la fecha en la que llegó');
         }
       }

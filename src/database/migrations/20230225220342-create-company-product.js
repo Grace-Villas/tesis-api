@@ -31,7 +31,7 @@ module.exports = {
         defaultValue: 0,
         validate: {
           min: {
-            args: 0,
+            args: [0],
             msg: 'El stock no puede ser un número negativo'
           }
         }

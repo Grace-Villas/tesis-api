@@ -1,5 +1,3 @@
-const validator = require('validator');
-
 const { City, Country, State } = require('../database/models');
 
 
@@ -40,32 +38,27 @@ const validateCityId = async (cityId, { req }) => {
 }
 
 /**
- * Método para verificar un número de teléfono. Para esto
- * es necesario que exista el atributo cityData en
- * `req.body.cityData`
- * @param {string} phone `string` Número de teléfono
- * @param {object} request `requerido` Objeto con la data de la petición
+ * Función para determinar si es obligatorio el precio de delivery para una ciudad o no
+ * @param {*} _ 
+ * @param {object} request `requerido` objeto con la data de la petición
  * @param {import('express').Request} request.req
- * @returns {boolean} `bool`
  */
-const validatePhone = async (phone, { req }) => {
+const validateDeliveryPriceNeeded = async (_, { req }) => {
    try {
-      const city = req.body.cityData;
+      const city = await City.findByPk(req.params.id);
 
-      if (!city) {
-         return true;
+      if (city.hasDeliveries && typeof req.body.deliveryPrice != 'undefined') {
+         return Promise.resolve();
+      }
+      
+      if (req.body.hasDeliveries && (!city.deliveryPrice && !req.body.deliveryPrice)) {
+         return Promise.resolve();
       }
 
-      const { locale, phoneExtension } = city.state.country;
-
-      if (!validator.isMobilePhone(`${phoneExtension}${phone}`, locale, { strictMode: true })) {
-         throw new Error('El teléfono es inválido');
-      }
-
-      return true;
+      return Promise.reject();
    } catch (error) {
       console.log(error);
-      throw new Error('El teléfono es inválido');
+      return Promise.resolve();
    }
 }
 
@@ -73,5 +66,5 @@ const validatePhone = async (phone, { req }) => {
 
 module.exports = {
    validateCityId,
-   validatePhone
+   validateDeliveryPriceNeeded
 }

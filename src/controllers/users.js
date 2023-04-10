@@ -1,5 +1,5 @@
 const { request, response } = require('express');
-const { Op } = require('sequelize');
+const { Op, fn, where: seqWhere, col } = require('sequelize');
 const bcryptjs = require('bcryptjs');
 
 // Modelos
@@ -12,6 +12,20 @@ const { userRegistrationMailer, passwordRecoveryMailer } = require('../helpers/m
 const { getIpAdress } = require('../helpers/ip-adress');
 const { capitalizeAllWords } = require('../helpers/format');
 const CompanyConfig = require('../helpers/config');
+
+
+
+// Eager loading
+const eLoad = [
+   {
+      model: UserRole,
+      as: 'userRoles',
+      include: {
+         model: Role,
+         as: 'role'
+      }
+   }
+];
 
 
 
@@ -50,11 +64,11 @@ const create = async (req = request, res = response) => {
       const config = CompanyConfig.instance();
 
       await userRegistrationMailer({
-         from: `'${config.get('name')}' <${config.get('email')}>`,
+         from: `'${config.get('companyName').value}' <${config.get('companyEmail').value}>`,
          to: stringEmail,
-         subject: `¡Bienvenido a ${config.get('name')}!`
+         subject: `¡Bienvenido a ${config.get('companyName').value}!`
       }, {
-         companyName: config.get('name'),
+         companyName: config.get('companyName').value,
          userName: capitalizeAllWords(user.fullName),
          clientName: capitalizeAllWords(company.name),
          password
@@ -69,28 +83,39 @@ const create = async (req = request, res = response) => {
 
 /**
  * Listar usuarios registrados.
+ * @param {string} name string, filtro de búsqueda. `query`
+ * @param {string} email string, filtro de búsqueda. `query`
  * @param {integer} skip integer, cantidad de resultados a omitir (Paginación). `query`
  * @param {integer} limit integer, cantidad de resultados límite (Paginación). `query`
  */
 const findAll = async (req = request, res = response) => {
    try {
-      const { skip = 0, limit } = req.query;
+      const { name, email, skip = 0, limit } = req.query;
+
+      let where = {}
 
       const user = req.authUser;
 
-      const where = user.isAdmin
-         ?
-         { companyId: { [Op.is]: null } }
-         :
-         { companyId: user.companyId }
+      if (typeof name != 'undefined') {
+         where.name = seqWhere(fn('concat', col('firstName'), ' ', col('lastName')), { [Op.substring]: name })
+      }
+
+      if (typeof email != 'undefined') {
+         where.email = { [Op.substring]: email };
+      }
+
+      where.companyId = user.isAdmin ? { [Op.is]: null } : user.companyId
 
       if (limit) {
          const { rows, count } = await User.findAndCountAll({
             where,
+            include: eLoad,
+            distinct: true,
             offset: Number(skip),
             limit: Number(limit),
             order: [
-               ['firstName', 'ASC']
+               ['firstName', 'ASC'],
+               ['lastName', 'ASC']
             ]
          });
 
@@ -104,8 +129,10 @@ const findAll = async (req = request, res = response) => {
       } else {
          const users = await User.findAll({
             where,
+            include: eLoad,
             order: [
-               ['firstName', 'ASC']
+               ['firstName', 'ASC'],
+               ['lastName', 'ASC']
             ]
          });
    
@@ -127,7 +154,9 @@ const findById = async (req = request, res = response) => {
 
       const authUser = req.authUser;
       
-      const user = await User.findByPk(id);
+      const user = await User.findByPk(id, {
+         include: eLoad
+      });
 
       if (!user || (user.companyId !== authUser.companyId)) {
          return res.status(400).json({
@@ -200,7 +229,9 @@ const findByIdAndUpdate = async (req = request, res = response) => {
 
       const authUser = req.authUser;
 
-      const user = await User.findByPk(id);
+      const user = await User.findByPk(id, {
+         include: eLoad
+      });
 
       if (!user || (user.companyId !== authUser.companyId)) {
          return res.status(400).json({
@@ -519,17 +550,17 @@ const findByEmailAndPasswordRecovery = async (req = request, res = response) => 
       const config = CompanyConfig.instance();
 
       await passwordRecoveryMailer({
-         from: `'${config.get('name')}' <${config.get('email')}>`,
+         from: `'${config.get('companyName').value}' <${config.get('companyEmail').value}>`,
          to: user.email,
          subject: '¡Solicitud de cambio de contraseña!'
       }, {
-         companyName: config.get('name'),
+         companyName: config.get('companyName'),
          userName: capitalizeAllWords(user.fullName),
          userEmail: user.email,
          userUUID: user.uuid,
          userIp: getIpAdress(req),
          userJWT,
-         clientName: capitalizeAllWords(user.company?.name || config.get('name'))
+         clientName: capitalizeAllWords(user.company?.name || config.get('companyName').value)
       });
 
       res.json({sent: true});

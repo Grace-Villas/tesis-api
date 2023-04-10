@@ -7,7 +7,7 @@
     "start": "node src/app.js",
     "dev": "nodemon src/app.js",
     "migrate": "sequelize db:migrate && sequelize db:seed:all",
-    "migrate:undo": "sequelize db:migrate:undo:all && sequelize db:seed:undo:all",
+    "migrate:undo": "sequelize db:seed:undo:all && sequelize db:migrate:undo:all",
     "open": "code . && npm run dev"
   },
   "repository": {
@@ -31,6 +31,7 @@
     "handlebars": "4.7.7",
     "jsonwebtoken": "8.5.1",
     "mariadb": "3.0.2",
+    "moment": "^2.29.4",
     "mysql2": "2.3.3",
     "nodemailer": "6.9.1",
     "sequelize": "6.26.0",

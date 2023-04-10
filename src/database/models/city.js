@@ -27,6 +27,25 @@ module.exports = (sequelize, DataTypes) => {
         model: 'states',
         key: 'id'
       }
+    },
+    hasDeliveries: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: true
+    },
+    deliveryPrice: {
+      type: DataTypes.DECIMAL(10,2),
+      get() {
+        const value = this.getDataValue('deliveryPrice');
+
+        return Number(value) ? Number(value) : value;
+      },
+      validate: {
+        min: {
+          args: [0],
+          msg: 'El precio de despacho debe ser mayor o igual a 0'
+        }
+      }
     }
   }, {
     sequelize,

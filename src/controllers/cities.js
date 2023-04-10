@@ -1,4 +1,5 @@
 const { request, response } = require('express');
+const { Op } = require('sequelize');
 
 // Modelos
 const { City, State, Country } = require('../database/models');
@@ -22,13 +23,15 @@ const eLoad = [
 /**
  * Crear una nueva ciudad.
  * @param {string} name string. `body`.
- * @param {string} stateId integer. `body`.
+ * @param {string} stateId string. `body`.
+ * @param {boolean} hasDeliveries boolean. `body`.
+ * @param {number} deliveryPrice number. `body`.
  */
 const create = async (req = request, res = response) => {
    try {
-      const { stringName, stateId } = req.body;
+      const { stringName, stateId, hasDeliveries, deliveryPrice } = req.body;
 
-      const city = await City.create({ name: stringName, stateId });
+      const city = await City.create({ name: stringName, stateId, hasDeliveries, deliveryPrice });
 
       res.json(city);
    } catch (error) {
@@ -39,16 +42,39 @@ const create = async (req = request, res = response) => {
 
 /**
  * Listar ciudades registradas.
+ * @param {integer} countryId integer, Filtro de búsqueda. `query`. Opcional
+ * @param {integer} stateId integer, Filtro de búsqueda. `query`. Opcional
+ * @param {integer} hasDeliveries integer, Filtro de búsqueda. `query`. Opcional
+ * @param {integer} name integer, Filtro de búsqueda. `query`. Opcional
  * @param {integer} skip integer, cantidad de resultados a omitir (Paginación). `query`
  * @param {integer} limit integer, cantidad de resultados límite (Paginación). `query`
  */
 const findAll = async (req = request, res = response) => {
    try {
-      const { skip = 0, limit } = req.query;
+      const { countryId, stateId, hasDeliveries, name, skip = 0, limit } = req.query;
+
+      let where = {}
+
+      if (typeof countryId != 'undefined') {
+         where['$state.countryId$'] = countryId;
+      }
+
+      if (typeof stateId != 'undefined') {
+         where.stateId = stateId;
+      }
+
+      if (typeof hasDeliveries != 'undefined') {
+         where.hasDeliveries = hasDeliveries;
+      }
+
+      if (typeof name != 'undefined') {
+         where.name = { [Op.substring]: name };
+      }
 
       if (limit) {
          const { rows, count } = await City.findAndCountAll({
             include: eLoad,
+            where,
             offset: Number(skip),
             limit: Number(limit),
             order: [
@@ -66,6 +92,7 @@ const findAll = async (req = request, res = response) => {
       } else {
          const cities = await City.findAll({
             include: eLoad,
+            where,
             order: [
                ['name', 'ASC']
             ]
@@ -143,16 +170,17 @@ const findByIdAndDelete = async (req = request, res = response) => {
    }
 }
 
-// 
 /**
  * Actualizar información de una ciudad dado su id.
  * @param {integer} id integer. `params`
  * @param {string} name string. `body`. Opcional
- * @param {string} stateId integer. `body`. Opcional
+ * @param {integer} stateId integer. `body`. Opcional
+ * @param {boolean} hasDeliveries boolean. `body`. Opcional
+ * @param {number} deliveryPrice number. `body`. Opcional
  */
 const findByIdAndUpdate = async (req = request, res = response) => {
    try {
-      const { stringName, stateId } = req.body;
+      const { stringName, stateId, hasDeliveries, deliveryPrice } = req.body;
    
       const { id } = req.params;
 
@@ -179,6 +207,18 @@ const findByIdAndUpdate = async (req = request, res = response) => {
 
       if (stateId) {
          city.stateId = stateId;
+      }
+
+      if (typeof hasDeliveries != 'undefined') {
+         city.hasDeliveries = hasDeliveries;
+
+         if (!hasDeliveries) {
+            city.deliveryPrice = null; 
+         }
+      }
+
+      if (typeof deliveryPrice != 'undefined') {
+         city.deliveryPrice = deliveryPrice;
       }
 
       await city.save();

@@ -17,11 +17,11 @@ module.exports = {
           key: 'id'
         }
       },
-      companyProductId: {
+      productId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'company_has_product',
+          model: 'products',
           key: 'id'
         }
       },
@@ -31,7 +31,7 @@ module.exports = {
         defaultValue: 0,
         validate: {
           min: {
-            args: 1,
+            args: [1],
             msg: 'La cantidad no puede ser menor a 1'
           }
         }

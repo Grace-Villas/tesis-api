@@ -27,10 +27,15 @@ const router = Router();
 // Listar roles registrados
 router.get('/', [
    validateJWT,
-   validatePermission('roles', 'list'),
+   
+   query('name').optional()
+      .isString().withMessage('El nombre debe tener un formato string'),
+   query('isPublic').optional()
+      .isBoolean().withMessage('El atributo debe ser un booleano'),
 
    query('limit', 'El límite de documentos debe ser un entero mayor a cero').optional().isInt({gt: 0}),
    query('skip', 'La cantidad de documentos a omitir debe ser un entero mayor a cero').optional().isInt({min: 0}),
+
    validateFields
 ], findAll);
 

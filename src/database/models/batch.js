@@ -9,8 +9,11 @@ module.exports = (sequelize, DataTypes) => {
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
-    static associate(models) {
+    static associate({BatchStatus, User, Dispatch}) {
       // define association here
+      this.belongsTo(BatchStatus, { foreignKey: 'statusId', as: 'status' });
+      this.belongsTo(User, { foreignKey: 'userId', as: 'carrier' });
+      this.hasMany(Dispatch, { foreignKey: 'batchId', as: 'dispatches' });
     }
   }
   Batch.init({
@@ -19,6 +22,14 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       references: {
         model: 'users',
+        key: 'id'
+      }
+    },
+    statusId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'batch_statuses',
         key: 'id'
       }
     },

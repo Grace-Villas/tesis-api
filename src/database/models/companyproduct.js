@@ -9,8 +9,10 @@ module.exports = (sequelize, DataTypes) => {
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
-    static associate(models) {
+    static associate({Product, Company}) {
       // define association here
+      this.belongsTo(Product, { foreignKey: 'productId', as: 'product' });
+      this.belongsTo(Company, { foreignKey: 'companyId', as: 'company' });
     }
   }
   CompanyProduct.init({
@@ -36,7 +38,7 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: 0,
       validate: {
         min: {
-          args: 0,
+          args: [0],
           msg: 'El stock no puede ser un número negativo'
         }
       }

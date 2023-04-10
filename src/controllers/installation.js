@@ -25,6 +25,7 @@ const { capitalizeAllWords } = require('../helpers/format');
  * @param {string} state string. `body`.
  * @param {string} city string. `body`.
  * @param {string} address string. `body`.
+ * @param {number} deliveryPrice number. `body`.
  * @param {string} email string, email. `body`.
  * @param {string} password string. `body`
  */
@@ -34,7 +35,7 @@ const install = async (req = request, res = response) => {
          // Datos de configuración
          companyName, companyEmail, companyContactEmail, companyPhone,
          palletDay,
-         country, locale, phoneExtension, state, city, address,
+         country, locale, phoneExtension, state, city, address, deliveryPrice,
          // Cuenta principal
          firstName, lastName, stringEmail, password
       } = req.body;
@@ -66,7 +67,8 @@ const install = async (req = request, res = response) => {
                name: stringState,
                cities: [
                   {
-                     name: stringCity
+                     name: stringCity,
+                     deliveryPrice
                   }
                ]
             }

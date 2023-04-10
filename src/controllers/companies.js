@@ -1,8 +1,9 @@
 const { request, response } = require('express');
 const { Op } = require('sequelize');
+const bcryptjs = require('bcryptjs');
 
 // Modelos
-const { Company, City, State, Country, User } = require('../database/models');
+const { Company, City, State, Country, User, Role, UserRole } = require('../database/models');
 
 // Helpers
 const { generatePassword } = require('../helpers/password-generator');
@@ -36,7 +37,7 @@ const eLoad = [
  * Crear una nueva compañía.
  * @param {string} name string. `body`.
  * @param {string} rut string. `body`.
- * @param {integer} city integer. `body`.
+ * @param {integer} cityId integer. `body`.
  * @param {string} address string. `body`.
  * @param {string} phone string, sin el código de país. `body`.
  * @param {string} email string, email. `body`.
@@ -66,7 +67,14 @@ const create = async (req = request, res = response) => {
          });
       }
 
+      const role = await Role.findOne({
+         where: { name: 'admin' }
+      });
+
       const password = generatePassword();
+      
+      const salt = bcryptjs.genSaltSync();
+      const hashPassword = bcryptjs.hashSync(password, salt);
 
       const data = {
          name: stringName,
@@ -79,7 +87,10 @@ const create = async (req = request, res = response) => {
             firstName: stringName,
             lastName: '',
             email: stringEmail,
-            password
+            password: hashPassword,
+            userRoles: [{
+               roleId: role.id
+            }]
          }]
       }
 
@@ -93,11 +104,11 @@ const create = async (req = request, res = response) => {
       const config = await CompanyConfig.instance();
 
       await companyRegistrationMailer({
-         from: `'${config.get('name')}' <${config.get('email')}>`,
+         from: `'${config.get('companyName').value}' <${config.get('companyEmail').value}>`,
          to: stringEmail,
-         subject: `¡Bienvenido a ${config.get('name')}!`
+         subject: `¡Bienvenido a ${config.get('companyName').value}!`
       }, {
-         companyName: config.get('name'),
+         companyName: config.get('companyName').value,
          clientName: capitalizeAllWords(company.name),
          password
       });
@@ -111,15 +122,33 @@ const create = async (req = request, res = response) => {
 
 /**
  * Listar compañias registradas.
+ * @param {string} search string, filtro de búsqueda. `query`
+ * @param {integer} cityId integer, filtro de búsqueda. `query`
  * @param {integer} skip integer, cantidad de resultados a omitir (Paginación). `query`
  * @param {integer} limit integer, cantidad de resultados límite (Paginación). `query`
  */
 const findAll = async (req = request, res = response) => {
    try {
-      const { skip = 0, limit } = req.query;
+      const { search, cityId, skip = 0, limit } = req.query;
+
+      let where = {}
+
+      if (typeof search != 'undefined') {
+         where[Op.or] = [
+            { name: { [Op.substring]: search } },
+            { rut: { [Op.substring]: search } },
+            { phone: { [Op.substring]: search } },
+            { email: { [Op.substring]: search } },
+         ];
+      }
+
+      if (typeof cityId != 'undefined') {
+         where.cityId = cityId;
+      }
 
       if (limit) {
          const { rows, count } = await Company.findAndCountAll({
+            where,
             include: eLoad,
             offset: Number(skip),
             limit: Number(limit),
@@ -137,6 +166,7 @@ const findAll = async (req = request, res = response) => {
          });
       } else {
          const companies = await Company.findAll({
+            where,
             include: eLoad,
             order: [
                ['name', 'ASC']

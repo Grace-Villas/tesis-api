@@ -68,21 +68,31 @@ const create = async (req = request, res = response) => {
  */
 const findAll = async (req = request, res = response) => {
    try {
-      const { skip = 0, limit } = req.query;
+      const { name, isPublic, skip = 0, limit } = req.query;
 
       const user = req.authUser;
 
+      let where = {}
+
+      if (typeof name != 'undefined') {
+         where.name = { [Op.substring]: name };
+      }
+
+      if (typeof isPublic != 'undefined') {
+         where.isPublic = isPublic;
+      }
+
       // Funcionalidad específica según el tipo de usuario
-      const where = user.isAdmin
-         ?
-         { [Op.or]: [{ isPublic: true }, { companyId: { [Op.is]: null } }] }
-         :
-         { [Op.or]: [{ isPublic: true }, { companyId: user.companyId }] }
+      where[Op.or] = [
+         { isPublic: true },
+         { companyId: user.isAdmin ? { [Op.is]:  null } : user.companyId }
+      ]
 
       if (limit) {
          const { rows, count } = await Role.findAndCountAll({
             where,
             include: eLoad,
+            distinct: true,
             offset: Number(skip),
             limit: Number(limit),
             order: [
@@ -290,18 +300,18 @@ const findByIdAndAllocateToUser = async (req = request, res = response) => {
 
       const user = req.authUser;
 
-      // if (userId === user.id) {
-      //    return res.status(400).json({
-      //       errors: [
-      //          {
-      //             value: userId,
-      //             msg: 'No puedes asignarte roles tu mismo',
-      //             param: 'userId',
-      //             location: 'body'
-      //          }
-      //       ]
-      //    });
-      // }
+      if (userId === user.id) {
+         return res.status(400).json({
+            errors: [
+               {
+                  value: userId,
+                  msg: 'No puedes asignarte roles tu mismo',
+                  param: 'userId',
+                  location: 'body'
+               }
+            ]
+         });
+      }
 
       const [userRole, created] = await UserRole.findOrCreate({
          where: { roleId, userId },
