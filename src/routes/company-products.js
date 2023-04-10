@@ -30,7 +30,7 @@ router.get('/', [
 // Obtener un producto según su id
 router.get('/:id', [
    validateJWT,
-   validatePermission('products', 'list', true),
+   validatePermission('products', 'list'),
 
    param('id')
       .not().isEmpty().withMessage('El id es obligatorio').bail()

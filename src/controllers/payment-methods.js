@@ -1,4 +1,5 @@
 const { request, response } = require('express');
+const { Op } = require('sequelize');
 
 // Modelos
 const { PaymentMethod, PaymentType } = require('../database/models');
@@ -41,16 +42,37 @@ const create = async (req = request, res = response) => {
 
 /**
  * Listar métodos de pago registrados.
+ * @param {integer} paymentTypeId integer, filtro de búsqueda. `query`
+ * @param {string} search string, filtro de búsqueda. `query`
  * @param {integer} skip integer, cantidad de resultados a omitir (Paginación). `query`
  * @param {integer} limit integer, cantidad de resultados límite (Paginación). `query`
  */
 const findAll = async (req = request, res = response) => {
    try {
-      const { skip = 0, limit } = req.query;
+      const { paymentTypeId, search, skip = 0, limit } = req.query;
+
+      let where = {}
+
+      if (typeof paymentTypeId != 'undefined') {
+         where.paymentTypeId = paymentTypeId;
+      }
+
+      if (typeof search != 'undefined') {
+         where[Op.or] = [
+            { bankName: { [Op.substring]: search } },
+            { holderName: { [Op.substring]: search } },
+            { holderDni: { [Op.substring]: search } },
+            { accountNumber: { [Op.substring]: search } },
+            { email: { [Op.substring]: search } },
+            { phone: { [Op.substring]: search } },
+            { user: { [Op.substring]: search } }
+         ];
+      }
 
       if (limit) {
          const { rows, count } = await PaymentMethod.findAndCountAll({
             include: eLoad,
+            where,
             offset: Number(skip),
             limit: Number(limit),
             order: [
@@ -68,6 +90,7 @@ const findAll = async (req = request, res = response) => {
       } else {
          const methods = await PaymentMethod.findAll({
             include: eLoad,
+            where,
             order: [
                ['paymentType', 'name', 'ASC']
             ]

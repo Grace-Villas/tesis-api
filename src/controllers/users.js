@@ -83,6 +83,8 @@ const create = async (req = request, res = response) => {
 
 /**
  * Listar usuarios registrados.
+ * @param {string} name string, filtro de búsqueda. `query`
+ * @param {string} email string, filtro de búsqueda. `query`
  * @param {integer} skip integer, cantidad de resultados a omitir (Paginación). `query`
  * @param {integer} limit integer, cantidad de resultados límite (Paginación). `query`
  */

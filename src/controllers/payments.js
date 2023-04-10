@@ -255,7 +255,9 @@ const findByIdAndAprove = async (req = request, res = response) => {
       const { id } = req.params;
 
       const [payment, status] = await Promise.all([
-         Payment.findByPk(id),
+         Payment.findByPk(id, {
+            include: eLoad
+         }),
          PaymentStatus.findOne({
             where: { name: 'aprobado' }
          })
@@ -297,7 +299,9 @@ const findByIdAndDeny = async (req = request, res = response) => {
       const { comments } = req.body;
 
       const [payment, status] = await Promise.all([
-         Payment.findByPk(id),
+         Payment.findByPk(id, {
+            include: eLoad
+         }),
          PaymentStatus.findOne({
             where: { name: 'denegado' }
          })

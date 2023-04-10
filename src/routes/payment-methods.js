@@ -25,16 +25,22 @@ const router = Router();
 // Listar métodos de pago registrados
 router.get('/', [
    validateJWT,
+   
+   query('paymentTypeId').optional()
+      .isInt({gt: 0}).withMessage('El id es inválido'),
+   query('search').optional()
+      .isString().withMessage('La búsqueda debe tener un formato string'),
 
    query('limit', 'El límite de documentos debe ser un entero mayor a cero').optional().isInt({gt: 0}),
    query('skip', 'La cantidad de documentos a omitir debe ser un entero mayor a cero').optional().isInt({min: 0}),
+
    validateFields
 ], findAll);
 
 // Obtener un método de pago según su id
 router.get('/:id', [
    validateJWT,
-   validatePermission('payment-methods', 'list', true),
+   validatePermission('payment-methods', 'list'),
 
    param('id')
       .not().isEmpty().withMessage('El id es obligatorio').bail()

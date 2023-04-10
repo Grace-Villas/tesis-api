@@ -2,7 +2,7 @@ const { request, response } = require('express');
 const { Op } = require('sequelize');
 
 // Modelos
-const { Receiver, Company } = require('../database/models');
+const { Receiver, Company, City, State } = require('../database/models');
 
 
 
@@ -11,6 +11,14 @@ const eLoad = [
    {
       model: Company,
       as: 'company'
+   },
+   {
+      model: City,
+      as: 'city',
+      include: {
+         model: State,
+         as: 'state'
+      }
    }
 ];
 

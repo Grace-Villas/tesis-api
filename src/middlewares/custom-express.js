@@ -92,7 +92,7 @@ const validateRut = (rut) => {
  * @param {{locale:string, phoneExtension:string}} config `object` Configuraciones de validación
  * @returns {Boolean|Error} `bool`
  */
-const validatePhone = (phone, { locale = 'es-VE', phoneExtension = '+58' }) => {
+const validatePhone = (phone, { locale = 'es-VE', phoneExtension = '+58' } = {}) => {
    try {
       if (!validator.isMobilePhone(`${phoneExtension}${phone}`, locale, { strictMode: true })) {
          throw new Error('El teléfono es inválido');
