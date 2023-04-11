@@ -1,7 +1,9 @@
 const { request, response } = require('express');
 
 // Modelos
-const { Batch, BatchStatus, User, Dispatch, DispatchStatus, DispatchProduct, CompanyProduct, Product, Company, Receiver } = require('../database/models');
+const {
+   Batch, BatchStatus, User, Dispatch, DispatchStatus, DispatchProduct, CompanyProduct, Product, Company, Receiver, City, State
+} = require('../database/models');
 
 
 
@@ -25,7 +27,15 @@ const eLoad = [
          },
          {
             model: Receiver,
-            as: 'receiver'
+            as: 'receiver',
+            include: {
+               model: City,
+               as: 'city',
+               include: {
+                  model: State,
+                  as: 'state'
+               }
+            }
          },
          {
             model: DispatchProduct,
@@ -99,7 +109,7 @@ const create = async (req = request, res = response) => {
  */
 const findAll = async (req = request, res = response) => {
    try {
-      const { date, userId, skip = 0, limit } = req.query;
+      const { date, userId, statusId, skip = 0, limit } = req.query;
 
       let where = {}
 
@@ -119,6 +129,7 @@ const findAll = async (req = request, res = response) => {
          const { rows, count } = await Batch.findAndCountAll({
             include: eLoad,
             where,
+            distinct: true,
             offset: Number(skip),
             limit: Number(limit),
             order: [
@@ -256,14 +267,16 @@ const findByIdAndDelete = async (req = request, res = response) => {
 }
 
 /**
- * Eliminar un lote dado su id.
+ * Marcar como en tránsito un lote dado su id.
  * @param {integer} id integer. `params`
  */
 const findByIdAndTransit = async (req = request, res = response) => {
    try {
       const { id } = req.params;
 
-      const batch = await Batch.findByPk(id);
+      const batch = await Batch.findByPk(id, {
+         include: eLoad
+      });
 
       if (!batch) {
          return res.status(400).json({
@@ -295,6 +308,8 @@ const findByIdAndTransit = async (req = request, res = response) => {
       batch.statusId = batchStatus.id;
 
       await batch.save();
+
+      await batch.reload();
    
       res.json(batch);
    } catch (error) {

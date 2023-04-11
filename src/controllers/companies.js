@@ -10,6 +10,7 @@ const { generatePassword } = require('../helpers/password-generator');
 const { capitalizeAllWords } = require('../helpers/format');
 const { companyRegistrationMailer } = require('../helpers/mailing');
 const CompanyConfig = require('../helpers/config');
+const { findCompanyAdminRole } = require('../helpers/roles');
 
 
 
@@ -82,22 +83,28 @@ const create = async (req = request, res = response) => {
          cityId,
          address,
          phone,
+         email: stringEmail
+      }
+
+      const company = await Company.create(data);
+
+      const adminRole = await findCompanyAdminRole(company.id);
+
+      const userData = {
+         companyId: company.id,
+         firstName: stringName,
+         lastName: '',
          email: stringEmail,
-         users: [{
-            firstName: stringName,
-            lastName: '',
-            email: stringEmail,
-            password: hashPassword,
-            userRoles: [{
-               roleId: role.id
-            }]
+         password: hashPassword,
+         userRoles: [{
+            roleId: adminRole.id
          }]
       }
 
-      const company = await Company.create(data, {
+      const user = await User.create(userData, {
          include: {
-            model: User,
-            as: 'users'
+            model: UserRole,
+            as: 'userRoles'
          }
       });
 

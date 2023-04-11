@@ -61,7 +61,7 @@ const create = async (req = request, res = response) => {
          Company.findByPk(authUser.companyId)
       ]);
 
-      const config = CompanyConfig.instance();
+      const config = await CompanyConfig.instance();
 
       await userRegistrationMailer({
          from: `'${config.get('companyName').value}' <${config.get('companyEmail').value}>`,

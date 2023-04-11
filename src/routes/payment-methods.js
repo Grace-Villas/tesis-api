@@ -40,7 +40,6 @@ router.get('/', [
 // Obtener un método de pago según su id
 router.get('/:id', [
    validateJWT,
-   validatePermission('payment-methods', 'list'),
 
    param('id')
       .not().isEmpty().withMessage('El id es obligatorio').bail()

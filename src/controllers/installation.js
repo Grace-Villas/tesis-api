@@ -106,7 +106,6 @@ const install = async (req = request, res = response) => {
             role: {
                name: 'admin',
                hexColor: '#7367F0',
-               isPublic: true,
                rolePermissions: permissions.map(per => ({
                   list: true,
                   create: true,
