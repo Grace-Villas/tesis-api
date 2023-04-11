@@ -42,7 +42,7 @@ const create = async (req = request, res = response) => {
 
       const user = req.authUser;
 
-      if (!user.companyId && typeof companyId === 'undefined') {
+      if (!user.companyId && typeof companyId == 'undefined') {
          return res.status(400).json({
             errors: [
                {
