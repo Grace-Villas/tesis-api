@@ -70,7 +70,7 @@ const create = async (req = request, res = response) => {
       }, {
          companyName: config.get('companyName').value,
          userName: capitalizeAllWords(user.fullName),
-         clientName: capitalizeAllWords(company.name),
+         clientName: company ? capitalizeAllWords(company.name) : config.get('companyName').value,
          password
       });
 
@@ -547,14 +547,14 @@ const findByEmailAndPasswordRecovery = async (req = request, res = response) => 
       // Generar JWT
       const userJWT = await generateResetJWT(user.id, user.uuid, user.password, '1h');
 
-      const config = CompanyConfig.instance();
+      const config = await CompanyConfig.instance();
 
       await passwordRecoveryMailer({
          from: `'${config.get('companyName').value}' <${config.get('companyEmail').value}>`,
          to: user.email,
          subject: '¡Solicitud de cambio de contraseña!'
       }, {
-         companyName: config.get('companyName'),
+         companyName: config.get('companyName').value,
          userName: capitalizeAllWords(user.fullName),
          userEmail: user.email,
          userUUID: user.uuid,
