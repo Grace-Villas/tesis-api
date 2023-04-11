@@ -66,9 +66,9 @@ const create = async (req = request, res = response) => {
       }));
 
       await Promise.all(reception.products.map(p => {
-         const qtyPerPallet = productsData.find(pd => pd.id === p.productId).qtyPerPallet;
+         const qtyPerPallet = productsData.find(pd => pd.id == p.productId).qtyPerPallet;
 
-         const companyProduct = toUpdateOrCreate.find(tuoc => tuoc?.companyId === companyId && tuoc?.productId === p.productId);
+         const companyProduct = toUpdateOrCreate.find(tuoc => tuoc?.companyId == companyId && tuoc?.productId == p.productId);
 
          if (!companyProduct) {
             return CompanyProduct.create({
@@ -86,7 +86,7 @@ const create = async (req = request, res = response) => {
 
       // billing por paleta
       const billings = reception.products.map(p => {
-         const qtyPerPallet = productsData.find(pd => pd.id === p.productId).qtyPerPallet;
+         const qtyPerPallet = productsData.find(pd => pd.id == p.productId).qtyPerPallet;
 
          return [...Array(p.qty).keys()].map(_ => ({
             receptionProductId: p.id,
@@ -138,7 +138,7 @@ const findAll = async (req = request, res = response) => {
             offset: Number(skip),
             limit: Number(limit),
             order: [
-               ['date', 'ASC']
+               ['date', 'DESC']
             ]
          });
 
@@ -154,7 +154,7 @@ const findAll = async (req = request, res = response) => {
             include: eLoad,
             where,
             order: [
-               ['date', 'ASC']
+               ['date', 'DESC']
             ]
          });
    
