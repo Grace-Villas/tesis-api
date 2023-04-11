@@ -76,7 +76,7 @@ const create = async (req = request, res = response) => {
 
       const user = req.authUser;
 
-      if (!user.companyId && typeof companyId === 'undefined') {
+      if (!user.companyId && typeof companyId == 'undefined') {
          return res.status(400).json({
             errors: [
                {
@@ -165,7 +165,7 @@ const findAll = async (req = request, res = response) => {
             offset: Number(skip),
             limit: Number(limit),
             order: [
-               ['date', 'ASC']
+               ['date', 'DESC']
             ]
          });
 
@@ -181,7 +181,7 @@ const findAll = async (req = request, res = response) => {
             include: eLoad,
             where,
             order: [
-               ['date', 'ASC']
+               ['date', 'DESC']
             ]
          });
    

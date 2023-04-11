@@ -105,7 +105,7 @@ const findAll = async (req = request, res = response) => {
             offset: Number(skip),
             limit: Number(limit),
             order: [
-               ['date', 'ASC']
+               ['date', 'DESC']
             ]
          });
 
@@ -121,7 +121,7 @@ const findAll = async (req = request, res = response) => {
             include: eLoad,
             where,
             order: [
-               ['date', 'ASC']
+               ['date', 'DESC']
             ]
          });
    
