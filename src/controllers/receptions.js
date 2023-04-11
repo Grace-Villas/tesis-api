@@ -116,6 +116,8 @@ const findAll = async (req = request, res = response) => {
    try {
       const { date, companyId, userId, skip = 0, limit } = req.query;
 
+      const authUser = req.authUser;
+
       let where = {}
 
       if (typeof date != 'undefined') {
@@ -128,6 +130,10 @@ const findAll = async (req = request, res = response) => {
 
       if (typeof userId != 'undefined') {
          where.userId = userId;
+      }
+
+      if (authUser.companyId) {
+         where.companyId = authUser.companyId;
       }
 
       if (limit) {
@@ -174,11 +180,13 @@ const findById = async (req = request, res = response) => {
    try {
       const { id } = req.params;
 
-      const product = await Reception.findByPk(id, {
+      const authUser = req.authUser;
+
+      const reception = await Reception.findByPk(id, {
          include: eLoad
       });
 
-      if (!product) {
+      if (!reception || (authUser.companyId && (reception.companyId !== authUser.companyId))) {
          return res.status(400).json({
             errors: [
                {
@@ -191,7 +199,7 @@ const findById = async (req = request, res = response) => {
          });
       }
 
-      res.json(product);
+      res.json(reception);
    } catch (error) {
       console.log(error);
       res.status(500).json(error);
