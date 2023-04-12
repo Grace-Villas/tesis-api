@@ -10,7 +10,7 @@ const cheerio = require('cheerio');
  * @async
  * @returns {Promise<number|null>} El precio del dólar o null en caso de error
  */
-const dolarExchange = async () => {
+const dollarExchange = async () => {
    try {
       const response = await axios.get('https://www.bcv.org.ve', {httpsAgent});
    
@@ -30,5 +30,5 @@ const dolarExchange = async () => {
 
 
 module.exports = {
-   dolarExchange
+   dollarExchange
 }
