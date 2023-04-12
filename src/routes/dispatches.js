@@ -17,7 +17,8 @@ const {
    findByIdAndDeliver,
    findByIdAndDeny,
    findByIdAndAllocateBatch,
-   findByIdAndDellocateBatch
+   findByIdAndDellocateBatch,
+   exportData
 } = require('../controllers/dispatches');
 
 
@@ -39,6 +40,18 @@ router.get('/', [
    query('skip', 'La cantidad de documentos a omitir debe ser un entero mayor a cero').optional().isInt({min: 0}),
    validateFields
 ], findAll);
+
+// Obtener un despacho según su id
+router.get('/export/:id', [
+   validateJWT,
+   validatePermission('dispatches', 'list'),
+
+   param('id')
+      .not().isEmpty().withMessage('El id es obligatorio').bail()
+      .isInt({min: 1}).withMessage('El id es inválido'),
+
+   validateFields
+], exportData);
 
 // Obtener un despacho según su id
 router.get('/:id', [

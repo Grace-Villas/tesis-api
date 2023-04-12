@@ -9,7 +9,8 @@ const { validateProductId } = require('../middlewares/product-express');
 const {
    create,
    findAll,
-   findById
+   findById,
+   exportData
 } = require('../controllers/receptions');
 
 
@@ -31,6 +32,17 @@ router.get('/', [
 
    validateFields
 ], findAll);
+
+router.get('/export/:id', [
+   validateJWT,
+   validatePermission('receptions', 'list'),
+
+   param('id')
+      .not().isEmpty().withMessage('El id es obligatorio').bail()
+      .isInt({min: 1}).withMessage('El id es inválido'),
+      
+   validateFields
+], exportData);
 
 // Obtener un envío según su id
 router.get('/:id', [

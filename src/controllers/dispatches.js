@@ -1,4 +1,6 @@
 const { request, response } = require('express');
+const moment = require('moment');
+const pdf = require('html-pdf');
 
 // Modelos
 const {
@@ -8,6 +10,8 @@ const {
 // Helpers
 const { updateDispatchBillings } = require('../helpers/billing');
 const { updateBatchIfFullyDelivered } = require('../helpers/batches');
+const CompanyConfig = require('../helpers/config');
+const { dispatchExport } = require('../helpers/pdf-generator');
 
 
 
@@ -443,6 +447,61 @@ const findByIdAndDellocateBatch = async (req = request, res = response) => {
    }
 }
 
+const exportData = async (req = request, res = response) => {
+   try {
+      const { id } = req.params;
+
+      const authUser = req.authUser;
+      
+      const dispatch = await Dispatch.findByPk(id, {
+         include: eLoad,
+      });
+
+      if (!dispatch || (authUser.companyId && authUser.companyId != dispatch.companyId)) {
+         return res.status(400).json({
+            errors: [
+               {
+                  value: id,
+                  msg: `El id: ${id} no se encuentra en la base de datos`,
+                  param: 'id',
+                  location: 'params'
+               }
+            ]
+         });
+      }
+
+      const config = await CompanyConfig.instance();
+
+      const { html, options } = await dispatchExport({
+         company: {
+            name: config.get('companyName').value,
+            phone: config.get('companyPhone').value,
+            email: config.get('companyContactEmail').value,
+            address: config.get('address').value,
+            city: config.get('city').value,
+            state: config.get('state').value,
+         },
+         date: moment(dispatch.date).format('DD-MM-YYYY'),
+         dispatch: dispatch.get({plain: true}),
+         products: dispatch.get({plain: true}).products
+      });
+
+      pdf.create(html, options).toStream(function (err, stream) {
+         if (err) {
+            res.json({error: true, response: err})
+         }
+         res.writeHead(200, {
+            'Content-Type': 'application/force-download',
+            'Content-disposition': `attachment; filename=dispatch-${id}.pdf`
+         });
+         stream.pipe(res);
+      });
+   } catch (error) {
+      console.log(error);
+      res.status(500).json(error);
+   }
+}
+
 
 
 // Exports
@@ -454,5 +513,6 @@ module.exports = {
    findByIdAndDeliver,
    findByIdAndDeny,
    findByIdAndAllocateBatch,
-   findByIdAndDellocateBatch
+   findByIdAndDellocateBatch,
+   exportData
 }

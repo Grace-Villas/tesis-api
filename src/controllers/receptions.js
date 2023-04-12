@@ -1,8 +1,14 @@
 const { request, response } = require('express');
 const { Op } = require('sequelize');
+const pdf = require('html-pdf');
+const moment = require('moment/moment');
 
 // Modelos
-const { Reception, ReceptionProduct, ReceptionProductBilling, CompanyProduct, Product, Company, User } = require('../database/models');
+const { Reception, ReceptionProduct, ReceptionProductBilling, CompanyProduct, Product, Company, User, City, State } = require('../database/models');
+
+// Helpers
+const { receptionExport } = require('../helpers/pdf-generator');
+const CompanyConfig = require('../helpers/config');
 
 
 
@@ -10,7 +16,15 @@ const { Reception, ReceptionProduct, ReceptionProductBilling, CompanyProduct, Pr
 const eLoad = [
    {
       model: Company,
-      as: 'company'
+      as: 'company',
+      include: {
+         model: City,
+         as: 'city',
+         include: {
+            model: State,
+            as: 'state'
+         }
+      }
    },
    {
       model: User,
@@ -206,10 +220,71 @@ const findById = async (req = request, res = response) => {
    }
 }
 
+const exportData = async (req = request, res = response) => {
+   try {
+      const { id } = req.params;
+
+      const authUser = req.authUser;
+
+      const reception = await Reception.findByPk(id, {
+         include: eLoad
+      });
+
+      if (!reception || (authUser.companyId && (reception.companyId !== authUser.companyId))) {
+         return res.status(400).json({
+            errors: [
+               {
+                  value: id,
+                  msg: `El id: ${id} no se encuentra en la base de datos`,
+                  param: 'id',
+                  location: 'params'
+               }
+            ]
+         });
+      }
+
+      const config = await CompanyConfig.instance();
+
+      const { html, options } = await receptionExport({
+         company: {
+            name: config.get('companyName').value,
+            phone: config.get('companyPhone').value,
+            email: config.get('companyContactEmail').value,
+            address: config.get('address').value,
+            city: config.get('city').value,
+            state: config.get('state').value,
+         },
+         dateIn: moment(reception.date).format('DD-MM-YYYY'),
+         reception: reception.get({plain: true}),
+         products: reception.get({plain: true}).products.map(p => {
+            return {
+               ...p,
+               units: p.product.qtyPerPallet * p.qty
+            }
+         })
+      });
+
+      pdf.create(html, options).toStream(function (err, stream) {
+         if (err) {
+            res.json({error: true, response: err})
+         }
+         res.writeHead(200, {
+            'Content-Type': 'application/force-download',
+            'Content-disposition': `attachment; filename=reception-${id}.pdf`
+         });
+         stream.pipe(res);
+      });
+   } catch (error) {
+      console.log(error);
+      res.status(500).json(error);
+   }
+}
+
 
 // Exports
 module.exports = {
    create,
    findAll,
-   findById
+   findById,
+   exportData
 }
