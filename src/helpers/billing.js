@@ -16,9 +16,12 @@ const CompanyConfig = require('./config');
 /**
  * Función para actualizar los datos de factura de los productos entregados
  * @async
- * @param {Array<DispatchProduct>} dispatchProducts Arreglo de productos relacionados al despacho que se está entregando
+ * @param {Array<Dispatch>} dispatch Despacho que se está entregando
  */
-const updateDispatchBillings = async (dispatchProducts) => {
+const updateDispatchBillings = async (dispatch) => {
+
+   const dispatchProducts = dispatch.products;
+
    // Obtener información de billings (reception_product_billings) de los productos despachados
    const billings = await Promise.all(dispatchProducts.map(dispatchProduct => {
       return ReceptionProductBilling.findAll({
