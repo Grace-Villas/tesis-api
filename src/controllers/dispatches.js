@@ -306,7 +306,7 @@ const findByIdAndDeliver = async (req = request, res = response) => {
       }
 
       // Actualizar billings
-      await updateDispatchBillings(dispatch);
+      // await updateDispatchBillings(dispatch);
 
       const status = await DispatchStatus.findOne({
          where: { name: 'entregado' }
